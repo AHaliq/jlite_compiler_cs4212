@@ -2,9 +2,9 @@ package ast;
 
 import util.Util;
 
-public class IfElseThen extends NonTerminal {
+public class IfThenElse extends NonTerminal {
 
-  public IfElseThen(Node... ns) {
+  public IfThenElse(Node... ns) {
     super(ns);
     if (ns.length != 3)
       throw new IllegalArgumentException("non terminal must have exactly three nodes");
