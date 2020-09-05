@@ -51,9 +51,13 @@ no output `diff` is a successful test.
 
 ## Developer Guide
 
-This project first generates the java file from the `.cup` file to create symbols used in `.flex` for tokenization
+The following files are created in the following order
+1. `jlite.cup` -> `parser.java`
+1. `jlite.flex` -> `Lexer.java`
 
-The runner class `App.java` creates an instance of the `parser.java` from `.cup` and pairs it with the scanner `Lexer.java` from `.flex`
+The runner class `App.java` creates the parser and lexer passing reference of the Lexer to the parser together.
+
+`App.java` then begins to parse the input file.
 
 The grammar in `.cup` has actions to build an AST.
 
