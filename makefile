@@ -16,10 +16,10 @@ clean:
 	@mkdir $(DIR)/src/javasrc/jflex
 	@mkdir $(DIR)/bin
 
-test: $(DIR)/testcases/in/*
+test: $(DIR)/tests/in/*
 	@for file in $^ ; do \
 		echo "\n"test case: $${file##*/} ; \
 		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} > out; \
-		diff out $(DIR)/testcases/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
+		diff out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
 	done
 	@rm out
