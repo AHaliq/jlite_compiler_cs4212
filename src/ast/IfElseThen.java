@@ -1,5 +1,7 @@
 package ast;
 
+import util.Util;
+
 public class IfElseThen extends NonTerminal {
 
   public IfElseThen(Node... ns) {
@@ -10,6 +12,9 @@ public class IfElseThen extends NonTerminal {
 
   @Override
   public String toString() {
-    return "if " + this.get(0).toString() + " then " + this.get(1).toString() + " else " + this.get(2).toString();
+    String cond = Util.indent(this.get(0).toString());
+    String exp1 = Util.indent(this.get(1).toString());
+    String exp2 = Util.indent(this.get(2).toString());
+    return "if\n" + cond + "\nthen\n" + exp1 + "\nelse\n" + exp2;
   }
 }

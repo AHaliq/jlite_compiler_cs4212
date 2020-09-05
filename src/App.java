@@ -20,7 +20,8 @@ public class App {
       Boolean is_debug = args.length > 1;
       pt = is_debug ? p.debug_parse() : p.parse();
 
-      System.out.println(((Node) (pt.value)).toTree());
+      Node ptn = (Node) pt.value;
+      System.out.println(ptn.toString());
     } catch (Exception e) {
       System.out.println("EXCP: " + e);
     } finally {

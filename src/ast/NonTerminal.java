@@ -2,6 +2,8 @@ package ast;
 
 import java.util.ArrayList;
 
+import util.Util;
+
 public class NonTerminal implements Node {
 
   private ArrayList<Node> ns = new ArrayList<>();
@@ -24,11 +26,7 @@ public class NonTerminal implements Node {
   public String toTree() {
     String[] ts = new String[this.ns.size()];
     for (int i = 0; i < ts.length; i++) {
-      String[] ps = ns.get(i).toTree().split("\n");
-      for (int j = 0; j < ps.length; j++) {
-        ps[j] = "  " + ps[j];
-      }
-      ts[i] = String.join("\n", ps);
+      ts[i] = Util.indent(ns.get(i).toTree());
     }
     return "*\n" + String.join("\n", ts);
   }
