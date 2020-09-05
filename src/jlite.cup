@@ -9,18 +9,20 @@ import ast.*;
 terminal epsilon;
 
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
-key_if, key_else, key,_while, key_readln, key_println, key_true, key_false,
-key_this, key_new, key_null;
+key_if, key_else, key_while, key_readln, key_println, key_true, key_false,
+key_this, key_new, key_null, key_return;
+
 terminal tok_lbrace, tok_lparen, tok_rparen, tok_rbrace, tok_scolon, tok_comma,
 tok_dot, tok_assign, tok_or, tok_and, tok_lt, tok_gt, tok_lte, tok_gte, tok_eq,
 tok_neq, tok_neg, tok_plus, tok_minus, tok_times, tok_divide;
 
 terminal id, cname;
+
 terminal integer_literal, string_literal;
 
 /* Non-terminals */
 non terminal Program,MainClass,ClassDecl,VarDecl,MdDecl,FmlList,Type,MdBody,
-Stmt,Exp,BExp,Conj,RExp,BOp,BGrd,AExp,Term,Ftr,SExp,Atom,ExpList,ExpRest;
+Stmt,Exp,BExp,Conj,RExp,BOp,BGrd,AExp,Term,Ftr,SExp,Atom,ExpList;
 
 non terminal ClassDecl_Plus, VarDecl_Plus, MdDecl_Plus, Stmt_Plus;
 
@@ -34,7 +36,7 @@ precedence left tok_lt, tok_gt, tok_lte, tok_gte;
 precedence left tok_divide, tok_times;
 precedence left tok_plus, tok_minus;*/
 
-/* BNF to CFG grammar non terminals */
+/* BNF to CFG auxillary grammar */
 ClassDecl_Plus ::=
   ClassDecl ClassDecl_Plus
 | ClassDecl
@@ -98,11 +100,102 @@ Type ::=
 MdBody ::=
 	tok_lbrace VarDecl_Plus Stmt_Plus tok_rbrace
 | tok_lbrace Stmt_Plus tok_rbrace
+;
 
+Stmt ::=
+	key_if tok_lparen Exp tok_rparen tok_lbrace Stmt_Plus tok_rbrace key_else tok_lbrace Stmt_Plus tok_rbrace
+| key_while tok_lparen Exp tok_rparen tok_lbrace Stmt_Plus tok_rbrace
+| key_while tok_lparen Exp tok_rparen tok_lbrace tok_rbrace
+| key_readln tok_lparen id tok_rparen tok_scolon
+| key_println tok_lparen Exp tok_rparen tok_scolon
+| id tok_assign Exp tok_scolon
+| Atom tok_dot id tok_assign Exp tok_scolon
+| Atom tok_lparen ExpList tok_rparen tok_scolon
+| key_return Exp tok_scolon
+| key_return tok_scolon
+;
+
+Exp ::=
+	BExp
+| AExp
+| SExp
+;
+
+BExp ::=
+	BExp tok_or Conj
+| Conj
+;
+
+Conj ::=
+	Conj tok_and RExp
+| RExp
+;
+
+RExp ::=
+	AExp BOp AExp
+| BGrd
+;
+
+BOp ::=
+	tok_lt
+| tok_gt
+| tok_lte
+| tok_gte
+| tok_eq
+| tok_neq
+;
+
+BGrd ::=
+	tok_neg BGrd
+| key_true
+| key_false
+| Atom
+;
+
+AExp ::=
+	AExp tok_plus Term
+| AExp tok_minus Term
+| Term
+;
+
+Term ::=
+	Term tok_times Ftr
+| Term tok_divide Ftr
+| Ftr
+;
+
+Ftr ::=
+	integer_literal
+| tok_minus Ftr
+| Atom
+;
+
+SExp ::=
+	SExp tok_plus SExp
+| string_literal
+| Atom
+;
+
+Atom ::=
+	Atom tok_dot id
+| Atom tok_lparen ExpList tok_rparen
+| Atom tok_lparen tok_rparen
+| key_this
+| id
+| key_new cname tok_lparen tok_rparen
+| tok_lparen Exp tok_rparen
+| key_null
+;
+
+ExpList ::=
+	Exp
+| Exp, ExpList
+;
+
+/*
 expr      ::=
 	BOOL_LITERAL:c
 	{: RESULT = new Terminal(c); :}
 	| IF expr:e1 THEN expr:e2 ELSE expr:e3
 	{: RESULT = new IfThenElse((Node)e1, (Node)e2, (Node)e3); :}
-	;
-//TODO work from grammar, then setup tokens
+	;*/
