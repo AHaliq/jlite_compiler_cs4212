@@ -10,11 +10,43 @@ Use the makefile to run the project
 ```
 make
 ```
+default make is build
+
+### build
+```
+make build
+```
+
+generates java file from `jlite.cup` and `jlite.flex` and compiles the `App.java` with them.
+
+### clean
+```
+make clean
+```
+
+deletes all generated files
+
+### run
+```
+make run IN_FILE=<full_path_to_input_file>
+```
+
+run the parser with an input file. ensure the `make build` has been ran before
+
+### test
 
 ```
 make test
 ```
 
-```
-make tar
-```
+runs the test suite in the test directory
+
+## Developer Guide
+
+This project first generates the java file from the `.cup` file to create symbols used in `.flex` for tokenization
+
+The runner class `App.java` creates an instance of the `parser.java` from `.cup` and pairs it with the scanner `Lexer.java` from `.flex`
+
+The grammar in `.cup` has actions to build an AST.
+
+The AST is then rendered in the runner class before terminating.
