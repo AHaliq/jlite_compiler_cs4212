@@ -1,0 +1,25 @@
+// CUP specification for a simple expression evaluator (w/ actions)
+package javasrc.cup;
+
+import java_cup.runtime.*;
+import javasrc.jflex.Lexer;
+
+/* Terminals (tokens returned by the scanner). */
+terminal	BOOLCONST;
+terminal	IF, THEN, ELSE;
+
+/* Non-terminals */
+non terminal	expr;
+
+/* Precedences */
+precedence left IF;
+precedence left THEN;
+precedence left ELSE;
+
+/* The grammar */
+expr      ::=
+	BOOLCONST:c
+	{: RESULT = Boolean.parseBoolean(c.toString()); :}
+	| IF expr:e1 THEN expr:e2 ELSE expr:e3
+	{: RESULT = Boolean.parseBoolean(e1.toString()) ? Boolean.parseBoolean(e2.toString()) : Boolean.parseBoolean(e3.toString()); :}
+	;
