@@ -21,7 +21,7 @@ public class App {
       pt = is_debug ? p.debug_parse() : p.parse();
 
       Node ptn = (Node) pt.value;
-      System.out.println(ptn.toString());
+      System.out.println(ptn.toTree());
     } catch (Exception e) {
       System.out.println("EXCP: " + e);
     } finally {

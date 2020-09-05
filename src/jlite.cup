@@ -6,21 +6,103 @@ import javasrc.jflex.Lexer;
 import ast.*;
 
 /* Terminals (tokens returned by the scanner). */
-terminal	BOOLCONST;
-terminal	IF, THEN, ELSE;
+terminal epsilon;
+
+terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
+key_if, key_else, key,_while, key_readln, key_println, key_true, key_false,
+key_this, key_new, key_null;
+terminal tok_lbrace, tok_lparen, tok_rparen, tok_rbrace, tok_scolon, tok_comma,
+tok_dot, tok_assign, tok_or, tok_and, tok_lt, tok_gt, tok_lte, tok_gte, tok_eq,
+tok_neq, tok_neg, tok_plus, tok_minus, tok_times, tok_divide;
+
+terminal id, cname;
+terminal integer_literal, string_literal;
 
 /* Non-terminals */
-non terminal	expr;
+non terminal Program,MainClass,ClassDecl,VarDecl,MdDecl,FmlList,Type,MdBody,
+Stmt,Exp,BExp,Conj,RExp,BOp,BGrd,AExp,Term,Ftr,SExp,Atom,ExpList,ExpRest;
 
-/* Precedences */
-precedence left IF;
-precedence left THEN;
-precedence left ELSE;
+non terminal ClassDecl_Plus, VarDecl_Plus, MdDecl_Plus, Stmt_Plus;
+
+/* Precedences *//*
+precedence left tok_dot;
+precedence left tok_assign;
+precedence left tok_and;
+precedence left tok_or;
+precedence left tok_eq;
+precedence left tok_lt, tok_gt, tok_lte, tok_gte;
+precedence left tok_divide, tok_times;
+precedence left tok_plus, tok_minus;*/
+
+/* BNF to CFG grammar non terminals */
+ClassDecl_Plus ::=
+  ClassDecl ClassDecl_Plus
+| ClassDecl
+;
+
+VarDecl_Plus ::=
+	VarDecl VarDecl_Plus
+| VarDecl
+;
+
+MdDecl_Plus ::=
+	MdDecl MdDecl_Plus
+| MdDecl
+;
+
+Stmt_Plus ::=
+	Stmt Stmt_Plus
+| Stmt
+;
 
 /* The grammar */
+Program ::=
+	MainClass ClassDecl_Star
+|	MainClass
+;
+
+MainClass ::=
+  key_class cname tok_lbrace key_void key_main tok_lparen FmlList tok_rparen MdBody tok_rbrace
+| key_class cname tok_lbrace key_void key_main tok_lparen tok_rparen MdBody tok_rbrace
+;
+
+ClassDecl ::=
+	key_class cname tok_lbrace VarDecl_Plus MdDecl_Plus tok_rbrace
+| key_class cname tok_lbrace MdDecl_Plus tok_rbrace
+| key_class cname tok_lbrace VarDecl_Plus tok_rbrace
+| key_class cname tok_lbrace tok_rbrace
+;
+
+VarDecl ::=
+	Type id tok_scolon
+;
+
+MdDecl ::=
+	Type id tok_lparen FmlList tok_rparen MdBody
+| Type id tok_lparen tok_rparen MdBody
+;
+
+FmlList ::=
+	Type id
+| Type id tok_comma FmlList
+;
+
+Type ::=
+	key_int
+| key_bool
+| key_string
+| key_void
+| cname
+;
+
+MdBody ::=
+	tok_lbrace VarDecl_Plus Stmt_Plus tok_rbrace
+| tok_lbrace Stmt_Plus tok_rbrace
+
 expr      ::=
-	BOOLCONST:c
+	BOOL_LITERAL:c
 	{: RESULT = new Terminal(c); :}
 	| IF expr:e1 THEN expr:e2 ELSE expr:e3
 	{: RESULT = new IfThenElse((Node)e1, (Node)e2, (Node)e3); :}
 	;
+//TODO work from grammar, then setup tokens
