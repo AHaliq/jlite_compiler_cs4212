@@ -1,9 +1,16 @@
 DIR:=$(strip $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
-
+JFLEX:=$(DIR)/lib/jflex-full-1.8.2.jar
+CUP:=$(DIR)/lib/java-cup-11b.jar
 build:
-	@java -jar $(DIR)/lib/java-cup-11b.jar -destdir $(DIR)/src/javasrc/cup $(DIR)/src/jlite.cup
-	@jflex -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
-	@javac -cp $(DIR)/lib/java-cup-11b.jar -sourcepath $(DIR)/src -d $(DIR)/bin $(DIR)/src/App.java
+	@java -jar $(CUP) -destdir $(DIR)/src/javasrc/cup $(DIR)/src/jlite.cup
+	@echo "successful cup"
+	@echo "1/3\n"
+	@java -cp $(DIR)/src:$(JFLEX) jflex.Main -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
+	@echo "successful flex"
+	@echo "2/3\n"
+	@javac -cp $(CUP):$(JFLEX) -sourcepath $(DIR)/src -d $(DIR)/bin $(DIR)/src/App.java
+	@echo "successful app"
+	@echo "3/3\n"
 
 run:
 	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE)

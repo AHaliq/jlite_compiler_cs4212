@@ -66,7 +66,7 @@ The AST is then rendered in the runner class before terminating.
 ### Project Structure
 
 * `bin` is where the compiled java is stored
-* `lib` is where cup dependency jars are stored
+* `lib` is where dependency jars are stored
 * `src` is where the code is stored
   * `src/javasrc` is where generated java files from `.cup` and `.flex` are stored
   * `src/ast` is the package for AST classes
@@ -82,8 +82,6 @@ Distributor ID: Ubuntu
 Description:    Ubuntu 16.04.6 LTS
 Release:        16.04
 Codename:       xenial
-$ jflex --version
-This is JFlex 1.8.2
 $ java --version
 openjdk 14.0.2 2020-07-14
 OpenJDK Runtime Environment (build 14.0.2+12-46)

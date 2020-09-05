@@ -22,5 +22,5 @@ expr      ::=
 	BOOLCONST:c
 	{: RESULT = new Terminal(c); :}
 	| IF expr:e1 THEN expr:e2 ELSE expr:e3
-	{: RESULT = new IfThenElse((Node)e1, (Node)e2, (Node)e3); :}
+	{: RESULT = new IfElseThen((Node)e1, (Node)e2, (Node)e3); :}
 	;
