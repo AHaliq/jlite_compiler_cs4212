@@ -3,6 +3,7 @@ package javasrc.cup;
 
 import java_cup.runtime.*;
 import javasrc.jflex.Lexer;
+import ast.*;
 
 /* Terminals (tokens returned by the scanner). */
 terminal	BOOLCONST;
@@ -19,7 +20,7 @@ precedence left ELSE;
 /* The grammar */
 expr      ::=
 	BOOLCONST:c
-	{: RESULT = Boolean.parseBoolean(c.toString()); :}
+	{: RESULT = new Terminal(c); :}
 	| IF expr:e1 THEN expr:e2 ELSE expr:e3
-	{: RESULT = Boolean.parseBoolean(e1.toString()) ? Boolean.parseBoolean(e2.toString()) : Boolean.parseBoolean(e3.toString()); :}
+	{: RESULT = new IfThenElse((Node)e1, (Node)e2, (Node)e3); :}
 	;

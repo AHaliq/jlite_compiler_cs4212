@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 
+import ast.Node;
+
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import javasrc.jflex.Lexer;
@@ -18,7 +20,7 @@ public class App {
       Boolean is_debug = args.length > 1;
       pt = is_debug ? p.debug_parse() : p.parse();
 
-      System.out.println(pt.value.toString());
+      System.out.println(((Node) (pt.value)).toTree());
     } catch (Exception e) {
       System.out.println("EXCP: " + e);
     } finally {

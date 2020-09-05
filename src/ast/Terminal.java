@@ -1,17 +1,15 @@
 package ast;
 
-import javasrc.cup.sym;
-
 public class Terminal implements Node {
 
-  private int id;
+  private Object s;
 
-  public Terminal(int id) {
-    this.id = id;
+  public Terminal(Object s) {
+    this.s = s;
   }
 
-  public int get() {
-    return id;
+  public Object get() {
+    return s;
   }
 
   @Override
@@ -20,7 +18,7 @@ public class Terminal implements Node {
   }
 
   @Override
-  public String toString() throws IndexOutOfBoundsException {
-    return sym.terminalNames[id];
+  public String toString() {
+    return s.toString();
   }
 }
