@@ -58,3 +58,13 @@ The runner class `App.java` creates an instance of the `parser.java` from `.cup`
 The grammar in `.cup` has actions to build an AST.
 
 The AST is then rendered in the runner class before terminating.
+
+### Project Structure
+
+* `bin` is where the compiled java is stored
+* `lib` is where cup dependency jars are stored
+* `src` is where the code is stored
+  * `src/javasrc` is where generated java files from `.cup` and `.flex` are stored
+  * `src/ast` is the package for AST classes
+  * `App.java` is the main class
+* `tests` is where the test cases are stored
