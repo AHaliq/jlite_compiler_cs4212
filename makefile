@@ -2,7 +2,7 @@ DIR:=$(strip $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 JFLEX:=$(DIR)/lib/jflex-full-1.8.2.jar
 CUP:=$(DIR)/lib/java-cup-11b.jar
 build:
-	@java -jar $(CUP) -destdir $(DIR)/src/javasrc/cup -parser Parser -symbols Sym -nonterms $(DIR)/src/jlite.cup
+	@java -jar $(CUP) -expect 3 -destdir $(DIR)/src/javasrc/cup -parser Parser -symbols Sym -nonterms $(DIR)/src/jlite.cup
 	@echo "successful cup"
 	@echo "1/3\n"
 	@java -cp $(DIR)/src:$(JFLEX) jflex.Main -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
@@ -13,7 +13,7 @@ build:
 	@echo "3/3\n"
 
 run:
-	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE)
+	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(DEBUG)
 
 clean:
 	@rm -rf $(DIR)/bin
@@ -30,3 +30,6 @@ test: $(DIR)/tests/in/*
 		diff out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
 	done
 	@rm out
+
+cuphelp:
+	@java -jar $(CUP) --help

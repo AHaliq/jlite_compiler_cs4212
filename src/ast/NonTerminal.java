@@ -31,6 +31,17 @@ public class NonTerminal implements Node {
     return ns.get(i);
   }
 
+  public NonTerminal join(NonTerminal n) {
+    Node[] nns = new Node[this.length() + n.length()];
+    for (int i = 0; i < this.length(); i++) {
+      nns[i] = this.get(i);
+    }
+    for (int i = 0; i < n.length(); i++) {
+      nns[i + this.length()] = n.get(i);
+    }
+    return new NonTerminal(this.sym, this.var, nns);
+  }
+
   @Override
   public int getSym() {
     return this.sym;
@@ -48,6 +59,6 @@ public class NonTerminal implements Node {
       ts[i] = Util.indent(ns.get(i).toSexp());
     }
 
-    return "( " + Sym.terminalNames[sym] + "\n" + String.join("\n", ts) + "\n)";
+    return "( " + this.sym + ":" + this.var + "\n" + String.join("\n", ts) + "\n)";
   }
 }

@@ -50,11 +50,20 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 %eofval}
 
 new_line        = \r|\n|\r\n;
+LineTerminator  = \r|\n|\r\n
+InputCharacter  = [^\r\n]
 white_space     = {new_line} | [ \t\f]
 
 Identifier      = [a-z][a-zA-Z0-9_]*
 ClassName       = [A-Z][a-zA-Z0-9_]*
 IntegerLiteral  = [0-9]+
+
+Comment               = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
+TraditionalComment    = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+EndOfLineComment      = "//" {InputCharacter}* {LineTerminator}?
+DocumentationComment  = "/**" {CommentContent} "*"+ "/"
+CommentContent        = ( [^*] | \*+ [^/*] )*
+/* comment macros */
 
 %state STRING
 
@@ -124,6 +133,8 @@ IntegerLiteral  = [0-9]+
 "-"                             { return symbol(Sym.tok_minus); }
 "*"                             { return symbol(Sym.tok_times); }
 "/"                             { return symbol(Sym.tok_divide); }
+
+{Comment}                       { /* ignore */ }
 
 {white_space}                   { /* ignore */ }
 }

@@ -8,6 +8,10 @@ public class Terminal implements Node {
   private int var;
   private Object v;
 
+  public Terminal(int sym) {
+    this(sym, null);
+  }
+
   public Terminal(int sym, Object v) {
     this(sym, 0, v);
   }
@@ -34,11 +38,19 @@ public class Terminal implements Node {
 
   @Override
   public String toSexp() {
-    return "( " + Sym.terminalNames[sym] + " " + v.toString() + " )";
+    if (v == null) {
+      return this.toString();
+    } else {
+      return "( " + Sym.terminalNames[sym] + ":" + this.var + " " + v.toString() + " )";
+    }
   }
 
   @Override
   public String toString() {
-    return Sym.terminalNames[sym] + ":" + v.toString();
+    if (v == null) {
+      return Sym.terminalNames[sym] + ":" + this.var;
+    } else {
+      return Sym.terminalNames[sym] + ":" + v.toString();
+    }
   }
 }
