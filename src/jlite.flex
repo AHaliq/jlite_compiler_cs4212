@@ -1,9 +1,8 @@
 package javasrc.jflex;
 
 import java_cup.runtime.*;
-import javasrc.cup.sym;
+import javasrc.cup.Sym;
 import java_cup.runtime.ComplexSymbolFactory.Location;
-import util.Constants;
 
 %%
 %public
@@ -23,19 +22,19 @@ import util.Constants;
   
   ComplexSymbolFactory symbolFactory;
 
-  private Symbol symbol(String name, int sym) {
-    return symbolFactory.newSymbol(name, sym, new Location(yyline+1,yycolumn+1,(int)yychar), new Location(yyline+1,yycolumn+yylength(),(int)(yychar+yylength())));
+  private Symbol symbol(int sym) {
+    return symbolFactory.newSymbol(Sym.terminalNames[sym], sym, new Location(yyline+1,yycolumn+1,(int)yychar), new Location(yyline+1,yycolumn+yylength(),(int)(yychar+yylength())));
   }
 
-  private Symbol symbol(String name, int sym, Object val) {
+  private Symbol symbol(int sym, Object val) {
     Location left = new Location(yyline+1,yycolumn+1,(int)yychar);
     Location right= new Location(yyline+1,yycolumn+yylength(), (int)(yychar+yylength()));
-    return symbolFactory.newSymbol(name, sym, left, right,val);
+    return symbolFactory.newSymbol(Sym.terminalNames[sym], sym, left, right,val);
   }
-  private Symbol symbol(String name, int sym, Object val,int buflength) {
+  private Symbol symbol(int sym, Object val,int buflength) {
     Location left = new Location(yyline+1,yycolumn+yylength()-buflength,(int)(yychar+yylength()-buflength));
     Location right= new Location(yyline+1,yycolumn+yylength(), (int)(yychar+yylength()));
-    return symbolFactory.newSymbol(name, sym, left, right,val);
+    return symbolFactory.newSymbol(Sym.terminalNames[sym], sym, left, right,val);
   }
 
   private void error(String message) {
@@ -45,15 +44,13 @@ import util.Constants;
 
 %eofval{
   return symbolFactory.newSymbol("EOF",
-    sym.EOF,
+    Sym.EOF,
     new Location(yyline+1,yycolumn+1,(int)yychar),
     new Location(yyline+1,yycolumn+1,(int)(yychar+1)));
 %eofval}
 
 new_line        = \r|\n|\r\n;
 white_space     = {new_line} | [ \t\f]
-
-BoolLiteral = true | false
 
 Identifier      = [a-z][a-zA-Z0-9_]*
 ClassName       = [A-Z][a-zA-Z0-9_]*
@@ -64,46 +61,77 @@ IntegerLiteral  = [0-9]+
 %%
 
 <YYINITIAL>{
-/*keywords -------------------------------------- */
-"if"    { return symbol("if", sym.IF); }
-"then"  { return symbol("then", sym.THEN); }
-"else"  { return symbol("else", sym.ELSE); }
+/* keywords ------------------------------------- */
+
+"class"                         { return symbol(Sym.key_class); }
+"main"                          { return symbol(Sym.key_main); }
+
+"Void"                          { return symbol(Sym.key_void); }
+"Int"                           { return symbol(Sym.key_int); }
+"Bool"                          { return symbol(Sym.key_bool); }
+"String"                        { return symbol(Sym.key_string); }
+
+"if"                            { return symbol(Sym.key_if); }
+"else"                          { return symbol(Sym.key_else); }
+"while"                         { return symbol(Sym.key_while); }
+
+"readln"                        { return symbol(Sym.key_readln); }
+"println"                       { return symbol(Sym.key_println); }
+
+"this"                          { return symbol(Sym.key_this); }
+"new"                           { return symbol(Sym.key_new); }
+"return"                        { return symbol(Sym.key_return); }
 
 /* literals ------------------------------------- */
-{BoolLiteral}                   { return symbol("BoolLiteral",
-                                    sym.BOOL_LITERAL,
-                                    new Boolean(Boolean.parseBoolean(yytext()))); }
 
-{IntegerLiteral}                { return symbol("IntegerLiteral",
-                                    sym.INTEGER_LITERAL,
-                                    new Integer(yytext())); }
+{IntegerLiteral}                { return symbol(Sym.integer_literal, yytext()); }
 
-"null"                          { return symbol("StringLiteral",
-                                    sym.STRING_LITERAL,
-                                    ""); }
+"true"                          { return symbol(Sym.key_true); }
+"false"                         { return symbol(Sym.key_false); }
+"null"                          { return symbol(Sym.key_null); }
+
+{Identifier}                    { return symbol(Sym.id, yytext()); }
+
+{ClassName}                     { return symbol(Sym.cname, yytext()); }
 
 /* separators ----------------------------------- */
- \"                             { strBuf.setLength(0); yybegin(STRING); }
-"&&"                            { return symbol("and", sym.BOOL_OP, new Integer(Constants.AND)); }
-"||"                            { return symbol("or", sym.BOOL_OP, new Integer(Constants.OR)); }
-"=="                            { return symbol("eq", sym.BOOL_OP, new Integer(Constants.EQ)); }
-"!="                            { return symbol("neq", sym.BOOL_OP, new Integer(Constants.NEQ)); }
-">="                            { return symbol("gte", sym.BOOL_OP, new Integer(Constants.GTE)); }
-">"                             { return symbol("gt", sym.BOOL_OP, new Integer(Constants.GT)); }
-"<="                            { return symbol("lte", sym.BOOL_OP, new Integer(Constants.LTE)); }
-"<"                             { return symbol("lt", sym.BOOL_OP, new Integer(Constants.LT)); }
 
+ \"                             { strBuf.setLength(0); yybegin(STRING); }
+
+"{"                             { return symbol(Sym.tok_lbrace); }
+"}"                             { return symbol(Sym.tok_rbrace); }
+"("                             { return symbol(Sym.tok_lparen); }
+")"                             { return symbol(Sym.tok_rparen); }
+
+";"                             { return symbol(Sym.tok_scolon); }
+","                             { return symbol(Sym.tok_comma); }
+"."                             { return symbol(Sym.tok_dot); }
+"="                             { return symbol(Sym.tok_assign); }
+
+"||"                            { return symbol(Sym.tok_or); }
+"&&"                            { return symbol(Sym.tok_and); }
+"=="                            { return symbol(Sym.tok_eq); }
+"!="                            { return symbol(Sym.tok_neq); }
+
+"<="                            { return symbol(Sym.tok_lte); }
+">="                            { return symbol(Sym.tok_gte); }
+"<"                             { return symbol(Sym.tok_lt); }
+">"                             { return symbol(Sym.tok_gt); }
+
+"!"                             { return symbol(Sym.tok_neg); }
+
+"+"                             { return symbol(Sym.tok_plus); }
+"-"                             { return symbol(Sym.tok_minus); }
+"*"                             { return symbol(Sym.tok_times); }
+"/"                             { return symbol(Sym.tok_divide); }
 
 {white_space}                   { /* ignore */ }
 }
 
 <STRING> {
-\"                              { yybegin(YYINITIAL); return symbol("StringLiteral",
-                                  sym.STRING_LITERAL,
-                                  strBuf.toString(),
-                                  strBuf.length()); }
+\"                              { yybegin(YYINITIAL); return symbol(Sym.string_literal, strBuf.toString(), strBuf.length()); }
 
-[^\n\r\"\\]+                    { strBuf.append( yytext() ); }
+[^\n\r\"\\]+                    { strBuf.append(yytext()); }
 \\t                             { strBuf.append('\t'); }
 \\n                             { strBuf.append('\n'); }
 
@@ -113,6 +141,6 @@ IntegerLiteral  = [0-9]+
 }
 
 /* error fallback */
-.|\n {
+[^]|\n {
     error("Illegal character <"+ yytext()+">");
 }

@@ -1,24 +1,44 @@
 package ast;
 
+import javasrc.cup.Sym;
+
 public class Terminal implements Node {
 
-  private Object s;
+  private int sym;
+  private int var;
+  private Object v;
 
-  public Terminal(Object s) {
-    this.s = s;
+  public Terminal(int sym, Object v) {
+    this(sym, 0, v);
+  }
+
+  public Terminal(int sym, int var, Object v) {
+    this.v = v;
+    this.sym = sym;
+    this.var = var;
   }
 
   public Object get() {
-    return s;
+    return v;
   }
 
   @Override
-  public String toTree() {
-    return this.toString();
+  public int getSym() {
+    return this.sym;
+  }
+
+  @Override
+  public int getVariant() {
+    return this.var;
+  }
+
+  @Override
+  public String toSexp() {
+    return "( " + Sym.terminalNames[sym] + " " + v.toString() + " )";
   }
 
   @Override
   public String toString() {
-    return s.toString();
+    return Sym.terminalNames[sym] + ":" + v.toString();
   }
 }

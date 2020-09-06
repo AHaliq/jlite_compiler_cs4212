@@ -6,8 +6,6 @@ import javasrc.jflex.Lexer;
 import ast.*;
 
 /* Terminals (tokens returned by the scanner). */
-terminal epsilon;
-
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
 key_if, key_else, key_while, key_readln, key_println, key_true, key_false,
 key_this, key_new, key_null, key_return;
@@ -21,12 +19,12 @@ terminal id, cname;
 terminal integer_literal, string_literal;
 
 /* Non-terminals */
-non terminal Program,MainClass,ClassDecl,VarDecl,MdDecl,FmlList,Type,MdBody,
+non terminal Program,MainClass,ClassDecl,MdDecl,FmlList,Type,MdBody,
 Stmt,Exp,BExp,Conj,RExp,BOp,BGrd,AExp,Term,Ftr,SExp,Atom,ExpList;
 
 non terminal ClassDecl_Plus, VarDecl_Plus, MdDecl_Plus, Stmt_Plus;
 
-/* Precedences *//*
+/* Precedences */
 precedence left tok_dot;
 precedence left tok_assign;
 precedence left tok_and;
@@ -34,32 +32,12 @@ precedence left tok_or;
 precedence left tok_eq;
 precedence left tok_lt, tok_gt, tok_lte, tok_gte;
 precedence left tok_divide, tok_times;
-precedence left tok_plus, tok_minus;*/
-
-/* BNF to CFG auxillary grammar */
-ClassDecl_Plus ::=
-  ClassDecl ClassDecl_Plus
-| ClassDecl
-;
-
-VarDecl_Plus ::=
-	VarDecl VarDecl_Plus
-| VarDecl
-;
-
-MdDecl_Plus ::=
-	MdDecl MdDecl_Plus
-| MdDecl
-;
-
-Stmt_Plus ::=
-	Stmt Stmt_Plus
-| Stmt
-;
+precedence left tok_plus, tok_minus;
+precedence left tok_scolon;
 
 /* The grammar */
 Program ::=
-	MainClass ClassDecl_Star
+	MainClass ClassDecl_Plus
 |	MainClass
 ;
 
@@ -73,10 +51,6 @@ ClassDecl ::=
 | key_class cname tok_lbrace MdDecl_Plus tok_rbrace
 | key_class cname tok_lbrace VarDecl_Plus tok_rbrace
 | key_class cname tok_lbrace tok_rbrace
-;
-
-VarDecl ::=
-	Type id tok_scolon
 ;
 
 MdDecl ::=
@@ -149,7 +123,7 @@ BGrd ::=
 	tok_neg BGrd
 | key_true
 | key_false
-| Atom
+| tok_neg Atom
 ;
 
 AExp ::=
@@ -167,7 +141,7 @@ Term ::=
 Ftr ::=
 	integer_literal
 | tok_minus Ftr
-| Atom
+| tok_minus Atom
 ;
 
 SExp ::=
@@ -189,7 +163,28 @@ Atom ::=
 
 ExpList ::=
 	Exp
-| Exp, ExpList
+| Exp tok_comma ExpList
+;
+
+/* BNF to CFG auxillary grammar */
+ClassDecl_Plus ::=
+  ClassDecl ClassDecl_Plus
+| ClassDecl
+;
+
+VarDecl_Plus ::=
+	Type id tok_scolon VarDecl_Plus
+| Type id tok_scolon
+;
+
+MdDecl_Plus ::=
+	MdDecl MdDecl_Plus
+| MdDecl
+;
+
+Stmt_Plus ::=
+	Stmt Stmt_Plus
+| Stmt
 ;
 
 /*

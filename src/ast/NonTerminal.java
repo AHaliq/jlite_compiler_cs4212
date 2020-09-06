@@ -2,16 +2,25 @@ package ast;
 
 import java.util.ArrayList;
 
+import javasrc.cup.Sym;
 import util.Util;
 
 public class NonTerminal implements Node {
 
+  private int sym;
+  private int var;
   private ArrayList<Node> ns = new ArrayList<>();
 
-  public NonTerminal(Node... ns) {
+  public NonTerminal(int sym, Node... ns) {
+    this(sym, 0, ns);
+  }
+
+  public NonTerminal(int sym, int var, Node... ns) {
     for (Node n : ns) {
       this.ns.add(n);
     }
+    this.sym = sym;
+    this.var = var;
   }
 
   public int length() {
@@ -23,11 +32,22 @@ public class NonTerminal implements Node {
   }
 
   @Override
-  public String toTree() {
+  public int getSym() {
+    return this.sym;
+  }
+
+  @Override
+  public int getVariant() {
+    return this.var;
+  }
+
+  @Override
+  public String toSexp() {
     String[] ts = new String[this.ns.size()];
     for (int i = 0; i < ts.length; i++) {
-      ts[i] = Util.indent(ns.get(i).toTree());
+      ts[i] = Util.indent(ns.get(i).toSexp());
     }
-    return "*\n" + String.join("\n", ts);
+
+    return "( " + Sym.terminalNames[sym] + "\n" + String.join("\n", ts) + "\n)";
   }
 }

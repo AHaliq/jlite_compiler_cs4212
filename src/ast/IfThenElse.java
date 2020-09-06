@@ -4,8 +4,8 @@ import util.Util;
 
 public class IfThenElse extends NonTerminal {
 
-  public IfThenElse(Node... ns) {
-    super(ns);
+  public IfThenElse(int sym, Node... ns) {
+    super(sym, ns);
     if (ns.length != 3)
       throw new IllegalArgumentException("non terminal must have exactly three nodes");
   }

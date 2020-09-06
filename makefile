@@ -2,7 +2,7 @@ DIR:=$(strip $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 JFLEX:=$(DIR)/lib/jflex-full-1.8.2.jar
 CUP:=$(DIR)/lib/java-cup-11b.jar
 build:
-	@java -jar $(CUP) -destdir $(DIR)/src/javasrc/cup $(DIR)/src/jlite.cup
+	@java -jar $(CUP) -destdir $(DIR)/src/javasrc/cup -parser Parser -symbols Sym -nonterms $(DIR)/src/jlite.cup
 	@echo "successful cup"
 	@echo "1/3\n"
 	@java -cp $(DIR)/src:$(JFLEX) jflex.Main -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
