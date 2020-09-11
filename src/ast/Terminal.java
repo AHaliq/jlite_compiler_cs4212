@@ -39,16 +39,16 @@ public class Terminal implements Node {
   @Override
   public String toSexp() {
     if (v == null) {
-      return this.toString();
+      return Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var);
     } else {
-      return "( " + Sym.terminalNames[sym] + ":" + this.var + " " + v.toString() + " )";
+      return "( " + Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var) + " " + v.toString() + " )";
     }
   }
 
   @Override
   public String toString() {
     if (v == null) {
-      return Sym.terminalNames[sym] + ":" + this.var;
+      return Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var);
     } else {
       return Sym.terminalNames[sym] + ":" + v.toString();
     }

@@ -3,3 +3,7 @@ class Main {
     x = "hi";
   }
 }
+class Test {
+  Int i;
+  String y;
+}

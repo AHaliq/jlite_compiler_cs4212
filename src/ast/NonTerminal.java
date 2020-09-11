@@ -54,11 +54,13 @@ public class NonTerminal implements Node {
 
   @Override
   public String toSexp() {
-    String[] ts = new String[this.ns.size()];
-    for (int i = 0; i < ts.length; i++) {
-      ts[i] = Util.indent(ns.get(i).toSexp());
+    if (this.ns.size() > 0) {
+      String[] ts = new String[this.ns.size()];
+      for (int i = 0; i < ts.length; i++) {
+        ts[i] = Util.indent(ns.get(i).toSexp());
+      }
+      return "( n" + this.sym + (this.var == 0 ? "" : ":" + this.var) + "\n" + String.join("\n", ts) + "\n)";
     }
-
-    return "( " + this.sym + ":" + this.var + "\n" + String.join("\n", ts) + "\n)";
+    return "( n" + this.sym + (this.var == 0 ? "" : ":" + this.var) + " )";
   }
 }
