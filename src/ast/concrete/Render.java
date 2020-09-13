@@ -93,7 +93,7 @@ public class Render {
   public static final RenderLambda stmt = (n) -> {
     switch (n.getVariant()) {
       case 0:
-        return String.format("If(%s)\n{%s}\nelse\n{%s}", n.get(0).toString(), n.get(1).toString(), n.get(2).toString());
+        return String.format("If(%s)\n{%s}else\n{%s}", n.get(0).toString(), n.get(1).toString(), n.get(2).toString());
       case 1:
         return String.format("While(%s)\n{%s}", n.get(0).toString(), n.get(1).toString());
       case 2:

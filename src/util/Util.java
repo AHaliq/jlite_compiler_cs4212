@@ -37,18 +37,13 @@ public class Util {
         }
         Boolean firstS3 = true;
         for (String s3 : s2.split("\\}")) {
-          if (s3.equals("\nelse\n")) {
-            appendIndent(str, "}\n", --il, indent);
-            appendIndent(str, "else\n", il, indent);
+          if (firstS3) {
+            firstS3 = false;
           } else {
-            if (firstS3) {
-              firstS3 = false;
-            } else {
-              appendIndent(str, "}\n", --il, indent);
-            }
-            if (s3.length() > 0)
-              appendIndent(str, s3, il, indent);
+            appendIndent(str, "}\n", --il, indent);
           }
+          if (s3.length() > 0)
+            appendIndent(str, s3, il, indent);
         }
       }
     }
