@@ -90,23 +90,23 @@ Stmt ::=
 	key_if tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s1 tok_rbrace key_else tok_lbrace Stmt_Plus:s2 tok_rbrace
 		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 0, (Node)e, (Node)s1, (Node)s2); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,1, (Node)e, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 1, (Node)e, (Node)s); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,2, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 2, (Node)e); :}
 | key_readln tok_lparen id:i tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,3, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 3, new Terminal(Sym.id, i)); :}
 | key_println tok_lparen Exp:e tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,4, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 4, (Node)e); :}
 | id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,5, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 5, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_dot id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_lparen ExpList:l tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,7, (Node)a, (Node)l); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 7, (Node)a, (Node)l); :}
 | key_return Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,8, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 8, (Node)e); :}
 | key_return tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,9); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 9); :}
 ;
 
 Exp ::=
@@ -203,21 +203,21 @@ SExp ::=
 
 Atom ::=
 	Atom:a tok_dot id:i
-		{: RESULT = new NonTerminal(Sym.Atom, 0, (Node)a, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 0, (Node)a, new Terminal(Sym.id, i)); :}
 | Atom:a tok_lparen ExpList:l tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, 1, (Node)a, (Node)l); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 1, (Node)a, (Node)l); :}
 | Atom:a tok_lparen tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 2, (Node)a); :}
 | key_this
-		{: RESULT = new NonTerminal(Sym.Atom, 3); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 3); :}
 | id:i
-		{: RESULT = new NonTerminal(Sym.Atom, 4, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 4, new Terminal(Sym.id, i)); :}
 | key_new cname:c tok_lparen tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, 5, new Terminal(Sym.cname, c)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 5, new Terminal(Sym.cname, c)); :}
 | tok_lparen Exp:e tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, 6, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 6, (Node)e); :}
 | key_null
-		{: RESULT = new NonTerminal(Sym.Atom, 7); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 7); :}
 ;
 
 ExpList ::=

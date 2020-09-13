@@ -1,8 +1,43 @@
-Error at line 1, column 31 : Illegal character <(>
-Error at line 1, column 66 : Illegal character <)>
-Error at line 4, column 21 : Illegal character <(>
-Error at line 4, column 22 : Illegal character <)>
-Error at line 4, column 30 : Illegal character <(>
-Error at line 4, column 33 : Illegal character <)>
-instead expected token classes are [key_readln, key_println, key_this, key_new, key_null, key_return, tok_lparen, id]
-EXCP: java.lang.Exception: Can't recover from previous error(s)
+t2|
+!j|
+this.getCompute()|
+class Main {Void main(Int i, Int a, Int b, Int d) {Int t1;Int t2;Compute help;while(true){t1 = t2;}}}class Dummy {Compute c;Int i;Dummy j;Int dummy() {Bool i;Bool j;if(i || j){return 1;} else {while(i){i = !j;}c = this.getCompute();}return this.getCompute().square(-3);return i;}Compute getCompute() {return c;}}
+
+
+
+t2|
+!j|
+this.getCompute()|
+class Main {
+  Void main(Int i, Int a, Int b, Int d) {
+    Int t1;
+    Int t2;
+    Compute help;
+    while(true){
+      t1 = t2;
+    }
+  }
+}
+class Dummy {
+  Compute c;
+  Int i;
+  Dummy j;
+  Int dummy() {
+    Bool i;
+    Bool j;
+    if(i || j){
+      return 1;
+    } else {
+      while(i){
+        i = !j;
+      }
+      c = this.getCompute();
+    }
+    return this.getCompute().square(-3);
+    return i;
+  }
+  Compute getCompute() {
+    return c;
+  }
+}
+

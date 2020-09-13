@@ -32,7 +32,7 @@ public class Render {
     String c = n.get(0).toString();
     String f = n.getVariant() == 0 ? n.get(1).toString() : "";
     String m = n.get(n.getVariant() == 0 ? 2 : 1).toString();
-    return String.format("class %s {Void main (%s) %s}", c, f, m);
+    return String.format("class %s {Void main(%s) %s}", c, f, m);
   };
 
   public static final RenderLambda classDecl = (n) -> {
