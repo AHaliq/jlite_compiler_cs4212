@@ -32,22 +32,17 @@ public class Util {
           str.append(";\n");
         }
         Boolean firstS3 = true;
-        for (String s3 : s2.split("\\} else \\{")) {
-          if (firstS3) {
-            firstS3 = false;
+        for (String s3 : s2.split("\\}")) {
+          if (s3.equals(" else ")) {
+            appendIndent(str, "} else ", --il);
           } else {
-            str.append("\n");
-            appendIndent(str, "} else {", il - 1);
-          }
-          Boolean firstS4 = true;
-          for (String s4 : s3.split("\\}")) {
-            if (firstS4) {
-              firstS4 = false;
+            if (firstS3) {
+              firstS3 = false;
             } else {
               appendIndent(str, "}\n", --il);
             }
-            if (s4.length() > 0)
-              appendIndent(str, s4, il);
+            if (s3.length() > 0)
+              appendIndent(str, s3, il);
           }
         }
       }
@@ -63,10 +58,3 @@ public class Util {
     buf.append(str);
   }
 }
-
-/**
- * 
- * split '{' each element increase indent and new line split ';' each element
- * new line split '} else {' reduce indent, print increase indent split '}' each
- * element decrease indent and new line
- */

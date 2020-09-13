@@ -181,7 +181,7 @@ public class Render {
 
   public static final RenderLambda ftr = (n) -> {
     switch (n.getVariant()) {
-      case 2:
+      case 1:
         return String.format("-%s", n.get(0).toString());
       default:
         return Render.linearRender.render(n);
@@ -192,6 +192,8 @@ public class Render {
     switch (n.getVariant()) {
       case 0:
         return String.format("%s + %s", n.get(0).toString(), n.get(1).toString());
+      case 1:
+        return String.format("\"%s\"", n.get(0).toString());
       default:
         return Render.linearRender.render(n);
     }
