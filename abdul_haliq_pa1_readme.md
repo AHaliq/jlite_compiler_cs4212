@@ -28,10 +28,12 @@ deletes all generated files
 
 ### run
 ```
-make run FILE=<full_path_to_input_file>
+make run FILE=<full_path_to_input_file> DEBUG=<true to debug parse> INDENT=<true to indent formatted output>
 ```
 
 run the parser with an input file
+
+the flags except `FILE` can be ommitted to default to `false`
 
 *ensure the project has been built with `make build` prior to running this*
 
