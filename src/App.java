@@ -18,13 +18,12 @@ public class App {
     Parser p = new Parser(new Lexer(r, sf), sf);
     Symbol pt = null;
     try {
-      Boolean is_debug = args.length > 1;
+      Boolean is_debug = args.length > 1 && args[1].equalsIgnoreCase("true");
+      Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("true");
       pt = is_debug ? p.debug_parse() : p.parse();
 
       Node ptn = (Node) pt.value;
-      System.out.println(ptn.toString());
-      System.out.println("\n\n");
-      System.out.println(Util.pretty(ptn.toString()));
+      System.out.println(Util.pretty(ptn.toString(), is_indent));
     } catch (Exception e) {
       System.out.println("EXCP: " + e);
     } finally {

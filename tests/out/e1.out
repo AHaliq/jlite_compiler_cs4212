@@ -21,7 +21,6 @@ If([i,j](||))
 Return 1;
 }
 else
-6
 {
 While(i)
 {
@@ -36,4 +35,3 @@ Compute getCompute(){
 Return c;
 }
 }
-

@@ -14,6 +14,10 @@ public class Util {
   }
 
   public static String pretty(String s) {
+    return Util.pretty(s, true);
+  }
+
+  public static String pretty(String s, Boolean indent) {
     StringBuilder str = new StringBuilder();
     int il = 0;
     Boolean firstS1 = true;
@@ -33,27 +37,34 @@ public class Util {
         }
         Boolean firstS3 = true;
         for (String s3 : s2.split("\\}")) {
-          if (s3.equals(" else ")) {
-            appendIndent(str, "} else ", --il);
+          if (s3.equals("\nelse\n")) {
+            appendIndent(str, "}\n", --il, indent);
+            appendIndent(str, "else\n", il, indent);
           } else {
             if (firstS3) {
               firstS3 = false;
             } else {
-              appendIndent(str, "}\n", --il);
+              appendIndent(str, "}\n", --il, indent);
             }
             if (s3.length() > 0)
-              appendIndent(str, s3, il);
+              appendIndent(str, s3, il, indent);
           }
         }
       }
     }
     String fs = str.toString();
-    return fs.substring(0, fs.length() - 1);
+    return fs.substring(0, fs.length() - 1).strip();
   }
 
   public static void appendIndent(StringBuilder buf, String str, int i) {
-    for (int j = 0; j < i; j++) {
-      buf.append("  ");
+    Util.appendIndent(buf, str, i, true);
+  }
+
+  public static void appendIndent(StringBuilder buf, String str, int i, Boolean indent) {
+    if (indent) {
+      for (int j = 0; j < i; j++) {
+        buf.append("  ");
+      }
     }
     buf.append(str);
   }
