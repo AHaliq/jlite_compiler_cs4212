@@ -50,7 +50,7 @@ public class Terminal implements Node {
     if (v == null) {
       return Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var);
     } else {
-      return Sym.terminalNames[sym] + ":" + v.toString();
+      return v.toString();
     }
   }
 }

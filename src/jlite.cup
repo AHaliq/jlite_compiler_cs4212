@@ -5,6 +5,7 @@ import java_cup.runtime.*;
 import javasrc.jflex.Lexer;
 import javasrc.cup.Sym;
 import ast.*;
+import ast.concrete.Render;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -38,74 +39,74 @@ precedence left tok_or;
 /* The grammar */
 Program ::=
 	MainClass:m ClassDecl_Star:c
-		{: RESULT = new NonTerminal(Sym.Program, 0, (Node)m, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, 0, (Node)m, (Node)c); :}
 ;
 
 MainClass ::=
   key_class cname:c tok_lbrace key_void key_main tok_lparen FmlList:l tok_rparen MdBody:b tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MainClass, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
 | key_class cname:c tok_lbrace key_void key_main tok_lparen tok_rparen MdBody:b tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MainClass, 1, new Terminal(Sym.cname, c), (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, 1, new Terminal(Sym.cname, c), (Node)b); :}
 ;
 
 ClassDecl ::=
 	key_class cname:c tok_lbrace VarDecl_Star:v MdDecl_Star:m tok_rbrace
-		{: RESULT = new NonTerminal(Sym.ClassDecl, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
 ;
 
 MdDecl ::=
 	Type:t id:i tok_lparen FmlList:l tok_rparen MdBody:b
-		{: RESULT = new NonTerminal(Sym.MdDecl, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
 | Type:t id:i tok_lparen tok_rparen MdBody:b
-		{: RESULT = new NonTerminal(Sym.MdDecl, 1, (Node)t, new Terminal(Sym.id, i), (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, 1, (Node)t, new Terminal(Sym.id, i), (Node)b); :}
 ;
 
 FmlList ::=
 	Type:t id:i
-		{: RESULT = new NonTerminal(Sym.FmlList, 0, new NonTerminal(Sym.FmlList, 1, (Node)t, new Terminal(Sym.id, i))); :}
+		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, 1, (Node)t, new Terminal(Sym.id, i))); :}
 | Type:t id:i tok_comma FmlList:ls
-		{: RESULT = new NonTerminal(Sym.FmlList, 0, new NonTerminal(Sym.FmlList, 1, (Node)t, new Terminal(Sym.id, i))).join((NonTerminal) ls); :}
+		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, 1, (Node)t, new Terminal(Sym.id, i))).join((NonTerminal) ls); :}
 ;
 
 Type ::=
 	key_int
-		{: RESULT = new NonTerminal(Sym.Type, 0, new Terminal(Sym.key_int)); :}
+		{: RESULT = new NonTerminal(Sym.Type, Render.type, 0, new Terminal(Sym.key_int)); :}
 | key_bool
-		{: RESULT = new NonTerminal(Sym.Type, 1, new Terminal(Sym.key_bool)); :}
+		{: RESULT = new NonTerminal(Sym.Type, Render.type, 1, new Terminal(Sym.key_bool)); :}
 | key_string
-		{: RESULT = new NonTerminal(Sym.Type, 2, new Terminal(Sym.key_string)); :}
+		{: RESULT = new NonTerminal(Sym.Type, Render.type, 2, new Terminal(Sym.key_string)); :}
 | key_void
-		{: RESULT = new NonTerminal(Sym.Type, 3, new Terminal(Sym.key_void)); :}
+		{: RESULT = new NonTerminal(Sym.Type, Render.type, 3, new Terminal(Sym.key_void)); :}
 | cname:c
-		{: RESULT = new NonTerminal(Sym.Type, 4, new Terminal(Sym.cname, c)); :}
+		{: RESULT = new NonTerminal(Sym.Type, Render.type, 4, new Terminal(Sym.cname, c)); :}
 ;
 
 MdBody ::=
 	tok_lbrace VarDecl_Star:v Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MdBody, 0, (Node)v, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.MdBody, Render.mdBody, 0, (Node)v, (Node)s); :}
 ;
 
 Stmt ::=
 	key_if tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s1 tok_rbrace key_else tok_lbrace Stmt_Plus:s2 tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, 0, (Node)e, (Node)s1, (Node)s2); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 0, (Node)e, (Node)s1, (Node)s2); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, 1, (Node)e, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,1, (Node)e, (Node)s); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, 2, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,2, (Node)e); :}
 | key_readln tok_lparen id:i tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 3, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,3, new Terminal(Sym.id, i)); :}
 | key_println tok_lparen Exp:e tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 4, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,4, (Node)e); :}
 | id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 5, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,5, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_dot id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_lparen ExpList:l tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 7, (Node)a, (Node)l); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,7, (Node)a, (Node)l); :}
 | key_return Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 8, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,8, (Node)e); :}
 | key_return tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, 9); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt,9); :}
 ;
 
 Exp ::=
@@ -119,14 +120,14 @@ Exp ::=
 
 BExp ::=
 	BExp:b tok_or Conj:c
-		{: RESULT = new NonTerminal(Sym.BExp, 0, (Node)b, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.BExp, Render.bExp, 0, (Node)b, (Node)c); :}
 | Conj:c
 		{: RESULT = new NonTerminal(Sym.BExp, 1, (Node)c); :}
 ;
 
 Conj ::=
 	Conj:c tok_and RExp:r
-		{: RESULT = new NonTerminal(Sym.Conj, 0, (Node)c, (Node)r); :}
+		{: RESULT = new NonTerminal(Sym.Conj, Render.conj, 0, (Node)c, (Node)r); :}
 | RExp:r
 		{: RESULT = new NonTerminal(Sym.Conj, 1, (Node)r); :}
 ;
@@ -140,64 +141,64 @@ RExp ::=
 
 BOp ::=
 	tok_lt
-		{: RESULT = new NonTerminal(Sym.BOp, 0); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 0); :}
 | tok_gt
-		{: RESULT = new NonTerminal(Sym.BOp, 1); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 1); :}
 | tok_lte
-		{: RESULT = new NonTerminal(Sym.BOp, 2); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 2); :}
 | tok_gte
-		{: RESULT = new NonTerminal(Sym.BOp, 3); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 3); :}
 | tok_eq
-		{: RESULT = new NonTerminal(Sym.BOp, 4); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 4); :}
 | tok_neq
-		{: RESULT = new NonTerminal(Sym.BOp, 5); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 5); :}
 ;
 
 BGrd ::=
 	tok_neg BGrd:b
-		{: RESULT = new NonTerminal(Sym.BGrd, 0, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, 0, (Node)b); :}
 | key_true
-		{: RESULT = new NonTerminal(Sym.BGrd, 1); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, 1); :}
 | key_false
-		{: RESULT = new NonTerminal(Sym.BGrd, 2); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, 2); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.BGrd, 3, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, 3, (Node)a); :}
 ;
 
 AExp ::=
 	AExp:a tok_plus Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, 0, (Node)a, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, 0, (Node)a, (Node)t); :}
 | AExp:a tok_minus Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, 1, (Node)a, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, 1, (Node)a, (Node)t); :}
 | Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, 2, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, 2, (Node)t); :}
 ;
 
 Term ::=
 	Term:t tok_times Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, 0, (Node)t, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, 0, (Node)t, (Node)f); :}
 | Term:t tok_divide Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, 1, (Node)t, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, 1, (Node)t, (Node)f); :}
 | Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, 2, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, 2, (Node)f); :}
 ;
 
 Ftr ::=
 	integer_literal:i
-		{: RESULT = new NonTerminal(Sym.Ftr, 0, new Terminal(Sym.integer_literal, i)); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, 0, new Terminal(Sym.integer_literal, i)); :}
 | tok_minus Ftr:f
-		{: RESULT = new NonTerminal(Sym.Ftr, 1, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, 1, (Node)f); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.Ftr, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, 2, (Node)a); :}
 ;
 
 SExp ::=
 	SExp:s1 tok_plus SExp:s2
-		{: RESULT = new NonTerminal(Sym.SExp, 0, (Node)s1, (Node)s2); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, 0, (Node)s1, (Node)s2); :}
 | string_literal:s
-		{: RESULT = new NonTerminal(Sym.SExp, 1, new Terminal(Sym.string_literal, s)); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, 1, new Terminal(Sym.string_literal, s)); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.SExp, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, 2, (Node)a); :}
 ;
 
 Atom ::=
@@ -229,38 +230,38 @@ ExpList ::=
 /* BNF to CFG auxillary grammar */
 ClassDecl_Star ::=
   ClassDecl:c ClassDecl_Star:ls
-		{: RESULT = new NonTerminal(Sym.ClassDecl_Star, 0, (Node)c).join((NonTerminal)ls); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl_Star, Render.concatRender, 0, (Node)c).join((NonTerminal)ls); :}
 |
-		{: RESULT = new NonTerminal(Sym.ClassDecl_Star, 0); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl_Star, Render.concatRender, 0); :}
 ;
 
 VarDecl ::=
 	Type:t id:i
-		{: RESULT = new NonTerminal(Sym.VarDecl, 0, (Node)t, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.VarDecl, Render.varDecl, 0, (Node)t, new Terminal(Sym.id, i)); :}
 ;
 
 VarDecl_Star ::=
 	VarDecl_Star:ls VarDecl:v tok_scolon 
-		{: RESULT = ((NonTerminal)ls).join(new NonTerminal(Sym.VarDecl_Star, 0, (Node)v)); :}
+		{: RESULT = ((NonTerminal)ls).join(new NonTerminal(Sym.VarDecl_Star, Render.concatRender, 0, (Node)v)); :}
 |
-		{: RESULT = new NonTerminal(Sym.VarDecl_Star, 0); :}
+		{: RESULT = new NonTerminal(Sym.VarDecl_Star, Render.concatRender, 0); :}
 ;
 
 MdDecl_Star ::=
 	MdDecl:m MdDecl_Star:ls
-		{: RESULT = new NonTerminal(Sym.MdDecl_Star, 0, (Node)m).join((NonTerminal)ls); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl_Star, Render.concatRender, 0, (Node)m).join((NonTerminal)ls); :}
 |
-		{: RESULT = new NonTerminal(Sym.MdDecl_Star, 0); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl_Star, Render.concatRender, 0); :}
 ;
 
 Stmt_Star ::=
 	Stmt:s Stmt_Star:ls
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, 0, (Node)s).join((NonTerminal)ls); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, 0, (Node)s).join((NonTerminal)ls); :}
 |
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, 0); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, 0); :}
 ;
 
 Stmt_Plus ::=
 	Stmt:s Stmt_Star:xs
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, 0, (Node)s).join((NonTerminal)xs); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, 0, (Node)s).join((NonTerminal)xs); :}
 ;

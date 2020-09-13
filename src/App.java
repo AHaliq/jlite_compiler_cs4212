@@ -7,6 +7,7 @@ import ast.Node;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import javasrc.jflex.Lexer;
+import util.Util;
 import javasrc.cup.Parser;
 
 public class App {
@@ -21,7 +22,7 @@ public class App {
       pt = is_debug ? p.debug_parse() : p.parse();
 
       Node ptn = (Node) pt.value;
-      System.out.println(ptn.toSexp());
+      System.out.println(Util.pretty(ptn.toString()));
     } catch (Exception e) {
       System.out.println("EXCP: " + e);
     } finally {
