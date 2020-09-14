@@ -1,9 +1,9 @@
 package ast;
 
 public interface Node {
-  public String toSexp();
+  public String toSexp() throws Exception;
 
-  public String toString();
+  public String toRender() throws Exception;
 
   public int getSym();
 

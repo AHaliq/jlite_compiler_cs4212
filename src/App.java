@@ -23,9 +23,9 @@ public class App {
       pt = is_debug ? p.debug_parse() : p.parse();
 
       Node ptn = (Node) pt.value;
-      System.out.println(Util.pretty(ptn.toString(), is_indent));
+      System.out.println(Util.pretty(ptn.toRender(), is_indent));
     } catch (Exception e) {
-      System.out.println("EXCP: " + e);
+      System.out.println("EXCP: " + e.getMessage());
     } finally {
       r.close();
     }

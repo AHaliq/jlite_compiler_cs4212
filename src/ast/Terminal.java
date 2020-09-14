@@ -37,7 +37,7 @@ public class Terminal implements Node {
   }
 
   @Override
-  public String toSexp() {
+  public String toSexp() throws Exception {
     if (v == null) {
       return Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var);
     } else {
@@ -46,7 +46,7 @@ public class Terminal implements Node {
   }
 
   @Override
-  public String toString() {
+  public String toRender() throws Exception {
     if (v == null) {
       return Sym.terminalNames[sym] + (this.var == 0 ? "" : ":" + this.var);
     } else {

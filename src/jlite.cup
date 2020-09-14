@@ -89,6 +89,8 @@ MdBody ::=
 Stmt ::=
 	key_if tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s1 tok_rbrace key_else tok_lbrace Stmt_Plus:s2 tok_rbrace
 		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 0, (Node)e, (Node)s1, (Node)s2); :}
+| key_if tok_lparen error tok_lbrace Stmt_Plus tok_rbrace key_else tok_lbrace Stmt_Plus tok_rbrace
+		{: RESULT = new ErrorNode("\nERROR: Missing right paren"); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s tok_rbrace
 		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, 1, (Node)e, (Node)s); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace tok_rbrace

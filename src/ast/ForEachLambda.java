@@ -1,5 +1,5 @@
 package ast;
 
 public interface ForEachLambda {
-  void each(Node n);
+  void each(Node n) throws Exception;
 }

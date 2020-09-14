@@ -42,7 +42,7 @@ public class NonTerminal implements Node {
     return ns.get(i);
   }
 
-  public void forEach(ForEachLambda f) {
+  public void forEach(ForEachLambda f) throws Exception {
     for (Node n : this.ns) {
       f.each(n);
     }
@@ -70,7 +70,7 @@ public class NonTerminal implements Node {
   }
 
   @Override
-  public String toSexp() {
+  public String toSexp() throws Exception {
     if (this.ns.size() > 0) {
       String[] ts = new String[this.ns.size()];
       for (int i = 0; i < ts.length; i++) {
@@ -82,7 +82,7 @@ public class NonTerminal implements Node {
   }
 
   @Override
-  public String toString() {
+  public String toRender() throws Exception {
     return r.render(this);
   }
 }
