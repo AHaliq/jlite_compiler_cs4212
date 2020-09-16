@@ -13,7 +13,7 @@ build:
 	@echo "3/3\n"
 
 run:
-	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),false)
+	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0)
 
 clean:
 	@rm -rf $(DIR)/bin
@@ -26,8 +26,8 @@ clean:
 test: $(DIR)/tests/in/*
 	@for file in $^ ; do \
 		echo "\n"test case: $${file##*/} ; \
-		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} false 0 > out; \
-		diff -Zb out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
+		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0) > out; \
+		diff out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
 	done
 	@rm out
 
