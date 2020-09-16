@@ -57,6 +57,8 @@ it iterates through all files in the `in` directory and looks for matching file 
 
 no output `diff` is a successful test. *do note standard error output might appear*
 
+you can use the same flags `DEBUG` and `RENDER` to apply for all test cases
+
 *ensure the project has been built with `make build` prior to running this*
 
 ## Developer Guide
