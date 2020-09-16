@@ -1,4 +1,0 @@
-TODO think of pretty algo without having to \n within Render.java
-      detect IF, WHILE, ELSE
-      set flag to true
-      when printing '{' if flag is true use indent
