@@ -13,7 +13,7 @@ build:
 	@echo "3/3\n"
 
 run:
-	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(INDENT),$(INDENT),false)
+	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),false)
 
 clean:
 	@rm -rf $(DIR)/bin

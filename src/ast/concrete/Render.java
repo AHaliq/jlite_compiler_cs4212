@@ -2,15 +2,6 @@ package ast.concrete;
 
 public class Render {
 
-  public static final RenderLambda newLineRender = (n) -> {
-    StringBuilder str = new StringBuilder();
-    n.forEach((e) -> {
-      str.append("\n");
-      str.append(e.toRender());
-    });
-    return str.length() > 0 ? str.toString().substring(1) : "";
-  };
-
   public static final RenderLambda linearRender = (n) -> {
     StringBuilder str = new StringBuilder();
     n.forEach((e) -> {
@@ -93,11 +84,11 @@ public class Render {
   public static final RenderLambda stmt = (n) -> {
     switch (n.getVariant()) {
       case 0:
-        return String.format("If(%s)\n{%s}else\n{%s}", n.get(0).toRender(), n.get(1).toRender(), n.get(2).toRender());
+        return String.format("If(%s){%s}else{%s}", n.get(0).toRender(), n.get(1).toRender(), n.get(2).toRender());
       case 1:
-        return String.format("While(%s)\n{%s}", n.get(0).toRender(), n.get(1).toRender());
+        return String.format("While(%s){%s}", n.get(0).toRender(), n.get(1).toRender());
       case 2:
-        return String.format("While(%s)\n{}", n.get(0).toRender());
+        return String.format("While(%s){}", n.get(0).toRender());
       case 3:
         return String.format("readln(%s);", n.get(0).toRender());
       case 4:

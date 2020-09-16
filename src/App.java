@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.io.Reader;
 
 import ast.Node;
-
+import ast.concrete.Render;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import javasrc.jflex.Lexer;
@@ -19,11 +19,17 @@ public class App {
     Symbol pt = null;
     try {
       Boolean is_debug = args.length > 1 && args[1].equalsIgnoreCase("true");
-      Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("true");
+      Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("2");
+      Boolean is_compact = args.length > 2 && args[2].equalsIgnoreCase("1");
       pt = is_debug ? p.debug_parse() : p.parse();
 
       Node ptn = (Node) pt.value;
-      System.out.println(Util.pretty(ptn.toRender(), is_indent));
+
+      if (is_compact) {
+        System.out.println(ptn.toRender());
+      } else {
+        System.out.println(Util.pretty(ptn.toRender(), is_indent));
+      }
     } catch (Exception e) {
       System.out.println("EXCP: " + e.getMessage());
     } finally {

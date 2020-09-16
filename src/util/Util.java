@@ -13,54 +13,90 @@ public class Util {
     return String.join("\n", ps);
   }
 
-  public static String pretty(String s) {
-    return Util.pretty(s, true);
-  }
-
-  public static String pretty(String s, Boolean indent) {
+  public static String pretty(String s, boolean is_indent) {
     StringBuilder str = new StringBuilder();
     int il = 0;
-    Boolean firstS1 = true;
-    for (String s1 : (s + ".").split("\\{")) {
-      if (firstS1) {
-        firstS1 = false;
-      } else {
-        str.append("{\n");
-        il++;
-      }
-      Boolean firstS2 = true;
-      for (String s2 : s1.split(";")) {
-        if (firstS2) {
-          firstS2 = false;
-        } else {
-          str.append(";\n");
-        }
-        Boolean firstS3 = true;
-        for (String s3 : s2.split("\\}")) {
-          if (firstS3) {
-            firstS3 = false;
-          } else {
-            appendIndent(str, "}\n", --il, indent);
+    boolean braceIndent = true;
+    boolean toIndent = false;
+    int[] state = { 0, 0, 0 };
+    boolean newLineParen = false;
+    boolean inString = false;
+    boolean escaped = false;
+    for (char c : s.toCharArray()) {
+      state = !inString ? updateState(state, c) : state;
+      newLineParen = state[0] == 6 || state[1] == 3 || state[2] == 4;
+      switch (c) {
+        case '\"':
+          inString = escaped ? inString : !inString;
+          break;
+        case '\\':
+          escaped = escaped ? false : (inString ? !escaped : escaped);
+        case '}':
+          if (!inString) {
+            il--;
+            toIndent = true;
           }
-          if (s3.length() > 0)
-            appendIndent(str, s3, il, indent);
-        }
+          break;
+        case '{':
+          if (newLineParen) {
+            str.append('\n');
+            toIndent = true;
+            state[0] = 0;
+            state[1] = 0;
+            state[2] = 0;
+          }
+          break;
+      }
+      if (toIndent && is_indent) {
+        istr(str, il);
+        toIndent = false;
+      }
+      str.append(c);
+      switch (c) {
+        case ';':
+          if (!inString) {
+            str.append('\n');
+            toIndent = true;
+          }
+          break;
+        case '{':
+          if (!inString) {
+            if (braceIndent) {
+              il++;
+            }
+            str.append('\n');
+            toIndent = true;
+          }
+          break;
+        case '}':
+          if (!inString) {
+            str.append('\n');
+            toIndent = true;
+          }
+          break;
       }
     }
-    String fs = str.toString();
-    return fs.substring(0, fs.length() - 1).strip();
+    return str.toString().strip();
   }
 
-  public static void appendIndent(StringBuilder buf, String str, int i) {
-    Util.appendIndent(buf, str, i, true);
+  public static void istr(StringBuilder str, int il) {
+    for (int i = 0; i < il; i++) {
+      str.append("  ");
+    }
   }
 
-  public static void appendIndent(StringBuilder buf, String str, int i, Boolean indent) {
-    if (indent) {
-      for (int j = 0; j < i; j++) {
-        buf.append("  ");
+  public static int[] updateState(int[] s, char c) {
+    int[] s2 = { s[0], s[1], s[2] };
+    char[] len = { 6, 3, 4 };
+    char[][] k = { "While(".toCharArray(), "If(".toCharArray(), "else".toCharArray() };
+    for (int i = 0; i < 3; i++) {
+      if (s2[i] < len[i]) {
+        if (k[i][s2[i]] == c)
+          s2[i]++;
+        else
+          s2[i] = 0;
       }
     }
-    buf.append(str);
+    return s2;
   }
 }

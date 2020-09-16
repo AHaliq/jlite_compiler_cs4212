@@ -28,12 +28,20 @@ deletes all generated files
 
 ### run
 ```
-make run FILE=<full_path_to_input_file> DEBUG=<true to debug parse> INDENT=<true to indent formatted output>
+make run FILE=<full_path_to_input_file> DEBUG=<true to debug parse> RENDER=<render type>
 ```
 
 run the parser with an input file
 
 the flags except `FILE` can be ommitted to default to `false`
+
+#### values for `RENDER`
+
+type|def
+-|-
+0| default, multiline code without line indentation
+1| compact code no multiline
+2| multiline code with line indentation (pretty)
 
 *ensure the project has been built with `make build` prior to running this*
 
@@ -89,3 +97,6 @@ openjdk 14.0.2 2020-07-14
 OpenJDK Runtime Environment (build 14.0.2+12-46)
 OpenJDK 64-Bit Server VM (build 14.0.2+12-46, mixed mode, sharing)
 ```
+### Custom Error Messages
+
+1. right paren missing for if statements
