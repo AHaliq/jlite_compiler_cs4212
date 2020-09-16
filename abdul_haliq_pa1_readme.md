@@ -55,7 +55,7 @@ runs the test suite in the test directory
 
 it iterates through all files in the `in` directory and looks for matching file prefix but with `.out` extension to `diff` with.
 
-no output `diff` is a successful test.
+no output `diff` is a successful test. *do note standard error output might appear*
 
 *ensure the project has been built with `make build` prior to running this*
 
