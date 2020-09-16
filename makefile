@@ -26,7 +26,7 @@ clean:
 test: $(DIR)/tests/in/*
 	@for file in $^ ; do \
 		echo "\n"test case: $${file##*/} ; \
-		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} false false > out; \
+		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} false 0 > out; \
 		diff -Zb out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
 	done
 	@rm out
