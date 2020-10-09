@@ -8,6 +8,7 @@ import ast.*;
 import ast.concrete.Render;
 import ast.concrete.NameCheck;
 import ast.concrete.NameCheckLambda;
+import ast.concrete.types.TypeCheck;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -41,7 +42,7 @@ precedence left tok_or;
 /* The grammar */
 Program ::=
 	MainClass:m ClassDecl_Star:c
-		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, new NameCheckLambda[]{NameCheck.classCheck((Node) c)}, 0, (Node)m, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, new NameCheckLambda[]{NameCheck.classCheck((Node) c)}, TypeCheck.allOk, 0, (Node)m, (Node)c); :}
 ;
 
 MainClass ::=

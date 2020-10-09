@@ -2,6 +2,7 @@ package ast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import ast.concrete.NameCheckLambda;
 import ast.concrete.Render;
@@ -61,6 +62,10 @@ public class NonTerminal implements Node {
     this(sym, r, null, nc, TypeCheck.nullCheck, var, ns);
   }
 
+  public NonTerminal(int sym, RenderLambda r, NameCheckLambda[] nc, TypeCheckLambda tc, int var, Node... ns) throws Exception {
+    this(sym, r, null, nc, tc, var, ns);
+  }
+
   public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda[] nc, int var, Node... ns) throws Exception {
     this(sym, r, name, nc, TypeCheck.nullCheck, var, ns);
   }
@@ -90,6 +95,10 @@ public class NonTerminal implements Node {
     for (Node n : this.ns) {
       f.each(n);
     }
+  }
+
+  public Stream<Node> stream() {
+    return ns.stream();
   }
 
   public NonTerminal join(NonTerminal n) throws Exception {

@@ -3,6 +3,8 @@ package ast.concrete.types;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import ast.NonTerminal;
+
 public class TypeCheck {
 
   public static boolean isT(HashMap<String,LocalEnv> cd, String t) {
@@ -20,6 +22,11 @@ public class TypeCheck {
   
   public static TypeCheckLambda nullCheck = (cd, le, n) -> {
     return null;
+  };
+
+  public static TypeCheckLambda allOk = (cd, le, n) -> {
+    n.forEach(mn -> ((NonTerminal) mn).typeCheck(cd, le));
+    return PrimTypes.IS_OK.getStr();
   };
 
   // typecheck lambdas --------------------------------------------------------

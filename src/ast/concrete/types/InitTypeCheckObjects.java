@@ -25,7 +25,7 @@ public class InitTypeCheckObjects {
       (a,le) -> Stream.concat(a, le.illegalTypes(map)),
       (a,b) -> Stream.concat(a,b)
     ).distinct().collect(Collectors.joining(", ", "[", "]"));
-    if(!illegals.equals("")) {
+    if(!illegals.equals("[]")) {
       throw new Exception("theres field declaration with types or method signature type that have no class definition:\n  " + illegals);
     }
     // validate class declaration

@@ -5,8 +5,7 @@ public enum PrimTypes {
   BOOL("Bool"),
   INT("Int"),
   STRING("String"),
-  IS_OK("isOk"),  // not a type but is used in type checking
-  NOT_OK("notOk");// lowercase will prevent collision with actual types
+  IS_OK("isOk");  // not a type but is used in type checking
 
   private String s;
 
