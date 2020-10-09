@@ -13,7 +13,7 @@ public class NonTerminal implements Node {
   private int var;
   private RenderLambda r;
   private String n;
-  private NameCheckLambda nc;
+  private NameCheckLambda[] nc;
   protected ArrayList<Node> ns = new ArrayList<>();
 
   public NonTerminal(int sym, Node... ns) throws Exception {
@@ -36,11 +36,11 @@ public class NonTerminal implements Node {
     this(sym, r, name, null, var, ns);
   }
 
-  public NonTerminal(int sym, RenderLambda r, NameCheckLambda nc, int var, Node... ns) throws Exception {
+  public NonTerminal(int sym, RenderLambda r, NameCheckLambda[] nc, int var, Node... ns) throws Exception {
     this(sym, r, null, nc, var, ns);
   }
 
-  public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda nc, int var, Node... ns) throws Exception {
+  public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda[] nc, int var, Node... ns) throws Exception {
     for (Node n : ns) {
       this.ns.add(n);
     }
@@ -49,7 +49,7 @@ public class NonTerminal implements Node {
     this.r = r;
     this.n = (String) name;
     this.nc = nc;
-    if (nc != null) nc.check(this);
+    if (nc != null) for (int i = 0; i < nc.length; i++) nc[i].check();
   }
 
   public int length() {

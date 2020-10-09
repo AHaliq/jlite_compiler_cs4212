@@ -7,6 +7,7 @@ import javasrc.cup.Sym;
 import ast.*;
 import ast.concrete.Render;
 import ast.concrete.NameCheck;
+import ast.concrete.NameCheckLambda;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -40,24 +41,24 @@ precedence left tok_or;
 /* The grammar */
 Program ::=
 	MainClass:m ClassDecl_Star:c
-		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, NameCheck.classCheck, 0, (Node)m, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, new NameCheckLambda[]{NameCheck.classCheck((Node) c)}, 0, (Node)m, (Node)c); :}
 ;
 
 MainClass ::=
   key_class cname:c tok_lbrace key_void key_main tok_lparen FmlList:l tok_rparen MdBody:b tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, c, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, c, new NameCheckLambda[]{NameCheck.fmlListCheck((Node) l, "in method 'main'")}, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
 | key_class cname:c tok_lbrace key_void key_main tok_lparen tok_rparen MdBody:b tok_rbrace
 		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, c, 1, new Terminal(Sym.cname, c), (Node)b); :}
 ;
 
 ClassDecl ::=
 	key_class cname:c tok_lbrace VarDecl_Star:v MdDecl_Star:m tok_rbrace
-		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, c, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, c, new NameCheckLambda[]{NameCheck.varDeclCheck((Node) v, "in class '" + ((String) c) + "'")}, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
 ;
 
 MdDecl ::=
 	Type:t id:i tok_lparen FmlList:l tok_rparen MdBody:b
-		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, i, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, i, new NameCheckLambda[]{NameCheck.fmlListCheck((Node) l, "in method '" + ((String) i) +"'")}, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
 | Type:t id:i tok_lparen tok_rparen MdBody:b
 		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, i, 1, (Node)t, new Terminal(Sym.id, i), (Node)b); :}
 ;
@@ -84,7 +85,7 @@ Type ::=
 
 MdBody ::=
 	tok_lbrace VarDecl_Star:v Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MdBody, Render.mdBody, 0, (Node)v, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.MdBody, Render.mdBody, new NameCheckLambda[]{NameCheck.varDeclCheck((Node) v, "in a method")}, 0, (Node)v, (Node)s); :}
 ;
 
 Stmt ::=
