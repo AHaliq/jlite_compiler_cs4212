@@ -25,9 +25,26 @@ public class NameCheck {
     };
   }
 
-  public static NameCheckLambda mdOverloadCheck(Node n) {
+  public static NameCheckLambda mdOverloadCheck(Node n, String msg) {
     return () -> {
-      // instead of hashSet of string, we need pair of string and array of types (param and return)
+      NonTerminal nNt = (NonTerminal) n;
+      HashSet<String> s = new HashSet<>();
+      nNt.forEach((mNode) -> {
+        NonTerminal m = (NonTerminal) mNode;
+        StringBuilder str = new StringBuilder();
+        str.append(m.getName());
+        if(m.getVariant() == 0) {
+          ((NonTerminal) m.get(2)).forEach((pNode) -> {
+            str.append(", " + ((NonTerminal) pNode).get(0).toRender());
+          });
+        }
+        str.append(" -> " + m.get(0).toRender());
+        String key = str.toString();
+        if(s.contains(key)) {
+          throw new Exception(msg + " method '" + key + "' duplicate found");
+        }
+        s.add(key);
+      });
     };
   }
 

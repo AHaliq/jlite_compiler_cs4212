@@ -53,7 +53,12 @@ MainClass ::=
 
 ClassDecl ::=
 	key_class cname:c tok_lbrace VarDecl_Star:v MdDecl_Star:m tok_rbrace
-		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, c, new NameCheckLambda[]{NameCheck.varDeclCheck((Node) v, "in class '" + ((String) c) + "'")}, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, c,
+		new NameCheckLambda[]{
+			NameCheck.varDeclCheck((Node) v, "in class '" + ((String) c) + "'"),
+			NameCheck.mdOverloadCheck((Node) m, "in class '" + ((String) c) + "'")
+		},
+		0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
 ;
 
 MdDecl ::=
