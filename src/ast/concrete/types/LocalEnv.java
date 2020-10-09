@@ -1,17 +1,18 @@
 package ast.concrete.types;
 
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 public class LocalEnv {
-  private Env<String> fd = new Env<>();
-  private Env<MethodSignature> sig = new Env<>();
+  private HashMap<String, String> fd = new HashMap<>();
+  private HashMap<String, MethodSignature> sig = new HashMap<>();
 
-  public void add(String id, String val) { 
-    fd.add(id, val);
+  public void put(String id, String val) { 
+    fd.put(id, val);
   }
 
-  public void add(String id, MethodSignature val) {
-    sig.add(id,val);
+  public void put(String id, MethodSignature val) {
+    sig.put(id,val);
   }
 
   public String getFd(String id) {
@@ -22,30 +23,14 @@ public class LocalEnv {
     return sig.get(id);
   }
 
+  public Stream<String> illegalTypes(HashMap<String,LocalEnv> cd) {
+    Stream<String> fdTypesNotInT = fd.values().stream().filter(t -> !TypeCheck.isT(cd, t));
+    Stream<String> sigTypesNotInT = sig.values().stream().filter(mds -> !mds.inT(cd)).map(mds -> mds.toString());
+    return Stream.concat(fdTypesNotInT, sigTypesNotInT);
+  }
+
   @Override
   public String toString() {
     return fd.toString() + sig.toString();
-  }
-}
-
-class Env<T>{
-
-  private HashMap<String, T> map;
-
-  public Env() {
-    map = new HashMap<String, T>();
-  }
-
-  public void add(String id, T val) {
-    map.put(id, val);
-  }
-  
-  public T get(String id) {
-    return map.get(id);
-  }
-
-  @Override
-  public String toString() {
-    return map.toString();
   }
 }

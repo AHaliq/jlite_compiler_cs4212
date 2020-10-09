@@ -1,10 +1,14 @@
 package ast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ast.concrete.NameCheckLambda;
 import ast.concrete.Render;
 import ast.concrete.RenderLambda;
+import ast.concrete.types.LocalEnv;
+import ast.concrete.types.TypeCheck;
+import ast.concrete.types.TypeCheckLambda;
 import util.Util;
 
 public class NonTerminal implements Node {
@@ -14,33 +18,54 @@ public class NonTerminal implements Node {
   private RenderLambda r;
   private String n;
   private NameCheckLambda[] nc;
+  private TypeCheckLambda tc;
   protected ArrayList<Node> ns = new ArrayList<>();
 
   public NonTerminal(int sym, Node... ns) throws Exception {
-    this(sym, Render.linearRender, null, null, 0, ns);
+    this(sym, Render.linearRender, null, null, TypeCheck.nullCheck, 0, ns);
   }
 
   public NonTerminal(int sym, RenderLambda r, Node... ns) throws Exception {
-    this(sym, r, null, null, 0, ns);
+    this(sym, r, null, null, TypeCheck.nullCheck, 0, ns);
+  }
+  
+  public NonTerminal(int sym, RenderLambda r, TypeCheckLambda tc, Node... ns) throws Exception {
+    this(sym, r, null, null, tc, 0, ns);
   }
 
   public NonTerminal(int sym, int var, Node... ns) throws Exception {
-    this(sym, Render.linearRender, null, null, var, ns);
+    this(sym, Render.linearRender, null, null, TypeCheck.nullCheck, var, ns);
+  }
+
+  public NonTerminal(int sym, TypeCheckLambda tc, int var, Node... ns) throws Exception {
+    this(sym, Render.linearRender, null, null, tc, var, ns);
   }
 
   public NonTerminal(int sym, RenderLambda r, int var, Node... ns) throws Exception {
-    this(sym, r, null, null, var, ns);
+    this(sym, r, null, null, TypeCheck.nullCheck, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, TypeCheckLambda tc, int var, Node... ns) throws Exception {
+    this(sym, r, null, null, tc, var, ns);
   }
 
   public NonTerminal(int sym, RenderLambda r, Object name, int var, Node... ns) throws Exception {
-    this(sym, r, name, null, var, ns);
+    this(sym, r, name, null, TypeCheck.nullCheck, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, Object name, TypeCheckLambda tc, int var, Node... ns) throws Exception {
+    this(sym, r, name, null, tc, var, ns);
   }
 
   public NonTerminal(int sym, RenderLambda r, NameCheckLambda[] nc, int var, Node... ns) throws Exception {
-    this(sym, r, null, nc, var, ns);
+    this(sym, r, null, nc, TypeCheck.nullCheck, var, ns);
   }
 
   public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda[] nc, int var, Node... ns) throws Exception {
+    this(sym, r, name, nc, TypeCheck.nullCheck, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda[] nc, TypeCheckLambda tc, int var, Node... ns) throws Exception {
     for (Node n : ns) {
       this.ns.add(n);
     }
@@ -49,6 +74,7 @@ public class NonTerminal implements Node {
     this.r = r;
     this.n = (String) name;
     this.nc = nc;
+    this.tc = tc;
     if (nc != null) for (int i = 0; i < nc.length; i++) nc[i].check();
   }
 
@@ -74,7 +100,7 @@ public class NonTerminal implements Node {
     for (int i = 0; i < n.length(); i++) {
       nns[i + this.length()] = n.get(i);
     }
-    return new NonTerminal(this.sym, this.r, this.n, this.nc, this.var, nns);
+    return new NonTerminal(this.sym, this.r, this.n, this.nc, this.tc, this.var, nns);
   }
 
   @Override
@@ -106,5 +132,9 @@ public class NonTerminal implements Node {
 
   public String getName() {
     return n;
+  }
+
+  public String typeCheck(HashMap<String, LocalEnv> cd, LocalEnv le) throws Exception {
+    return tc.check(cd,le,this);
   }
 }

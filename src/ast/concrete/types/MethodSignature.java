@@ -1,5 +1,8 @@
 package ast.concrete.types;
 
+import java.util.Arrays;
+import java.util.HashMap;
+
 public class MethodSignature {
 
   public static final String SEP = " -> ";
@@ -20,6 +23,10 @@ public class MethodSignature {
 
   public String getReturn() {
     return types[0];
+  }
+
+  public boolean inT(HashMap<String, LocalEnv> cd) {
+    return Arrays.stream(types).allMatch(t -> TypeCheck.isT(cd, t));
   }
 
   @Override

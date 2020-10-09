@@ -31,8 +31,7 @@ public class App {
 
       HashMap<String,LocalEnv> cd = InitTypeCheckObjects.initialize(ptn);
       LocalEnv le = new LocalEnv();
-      System.out.println(cd.toString());
-
+      ptn.typeCheck(cd, le);
       // run type checker
 
       if (is_compact) {

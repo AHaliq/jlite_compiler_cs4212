@@ -1,6 +1,9 @@
 package ast.concrete.types;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ast.NonTerminal;
 
@@ -8,7 +11,28 @@ public class InitTypeCheckObjects {
   public static HashMap<String,LocalEnv> initialize(NonTerminal p) throws Exception {
     HashMap<String,LocalEnv> map = new HashMap<>();
 
-    NonTerminal mainNode = (NonTerminal) p.get(0);
+    populateMainClass((NonTerminal) p.get(0), map);
+    // populate for main class
+    
+    ((NonTerminal) p.get(1)).forEach((c) -> {
+      NonTerminal cnt = (NonTerminal) c;
+      map.put(cnt.getName(), localEnvOfClass(cnt));
+    });
+    // populate for user classes
+
+    String illegals = map.values().stream().reduce(
+      Arrays.stream(new String[]{}),
+      (a,le) -> Stream.concat(a, le.illegalTypes(map)),
+      (a,b) -> Stream.concat(a,b)
+    ).distinct().collect(Collectors.joining(", ", "[", "]"));
+    if(!illegals.equals("")) {
+      throw new Exception("theres field declaration with types or method signature type that have no class definition:\n  " + illegals);
+    }
+    // validate class declaration
+    return map;
+  }
+
+  public static void populateMainClass(NonTerminal mainNode, HashMap<String,LocalEnv> map) throws Exception {
     NonTerminal fml = (NonTerminal) mainNode.get(1);
     String[] params;
     if (fml.getSym() == 0) {
@@ -20,18 +44,9 @@ public class InitTypeCheckObjects {
       params = new String[1];
     }
     params[0] = PrimTypes.VOID.getStr();
-    
     LocalEnv mainLocalEnv = new LocalEnv();
-    mainLocalEnv.add("main", new MethodSignature(params));
+    mainLocalEnv.put("main", new MethodSignature(params));
     map.put(mainNode.getName(), mainLocalEnv);
-    // populate for main class
-    
-    ((NonTerminal) p.get(1)).forEach((c) -> {
-      NonTerminal cnt = (NonTerminal) c;
-      map.put(cnt.getName(), localEnvOfClass(cnt));
-    });
-    // populate for user classes
-    return map;
   }
 
   public static LocalEnv localEnvOfClass(NonTerminal c) throws Exception {
@@ -50,7 +65,7 @@ public class InitTypeCheckObjects {
   }
 
   public static void addFdToLocalEnv(NonTerminal fd, LocalEnv e) throws Exception {
-    e.add(fd.getName(), fd.get(0).toRender());
+    e.put(fd.getName(), fd.get(0).toRender());
   }
 
   public static void addMdToLocalEnv(NonTerminal md, LocalEnv e) throws Exception {
@@ -65,6 +80,6 @@ public class InitTypeCheckObjects {
       params = new String[1];
     }
     params[0] = md.get(0).toRender();
-    e.add(md.getName(), new MethodSignature(params));
+    e.put(md.getName(), new MethodSignature(params));
   }
 }
