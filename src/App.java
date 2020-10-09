@@ -25,9 +25,11 @@ public class App {
       Boolean is_debug = args.length > 1 && args[1].equalsIgnoreCase("true");
       Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("2");
       Boolean is_compact = args.length > 2 && args[2].equalsIgnoreCase("1");
-      pt = is_debug ? p.debug_parse() : p.parse();
+      // resolve execution variables
 
+      pt = is_debug ? p.debug_parse() : p.parse();
       NonTerminal ptn = (NonTerminal) pt.value;
+      // build ast
 
       HashMap<String,LocalEnv> cd = InitTypeCheckObjects.initialize(ptn);
       LocalEnv le = new LocalEnv();
