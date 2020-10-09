@@ -7,6 +7,14 @@ public class LocalEnv {
   private HashMap<String, String> fd = new HashMap<>();
   private HashMap<String, MethodSignature> sig = new HashMap<>();
 
+  public LocalEnv() {}
+
+  @SuppressWarnings("unchecked")
+  public LocalEnv(HashMap<String, String> fd, HashMap<String, MethodSignature> sig) {
+    this.fd = (HashMap<String,String>) fd.clone();
+    this.sig = (HashMap<String, MethodSignature>) sig.clone();
+  }
+
   public void put(String id, String val) { 
     fd.put(id, val);
   }
@@ -21,6 +29,10 @@ public class LocalEnv {
 
   public MethodSignature getSg(String id) {
     return sig.get(id);
+  }
+
+  public LocalEnv clone() {
+    return new LocalEnv(fd, sig);
   }
 
   public Stream<String> illegalTypes(HashMap<String,LocalEnv> cd) {
