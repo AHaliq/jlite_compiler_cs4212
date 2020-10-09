@@ -3,6 +3,8 @@
 **Name:** Abdul Haliq S/O Abdul Latiff
 **No.:** A0125431U
 
+> User Guide is unchanged, please refer to [pa1 readme](abdul_haliq_pa1_readme.md) for more details on running the program
+
 ## Distinct Name Checking
 
 How it is implemented is the nonterminal class now has a nullable `name` field and a nullable list of `nc` name checkers.
