@@ -2,6 +2,7 @@ package ast;
 
 import java.util.ArrayList;
 
+import ast.concrete.NameCheckLambda;
 import ast.concrete.Render;
 import ast.concrete.RenderLambda;
 import util.Util;
@@ -11,27 +12,44 @@ public class NonTerminal implements Node {
   private int sym;
   private int var;
   private RenderLambda r;
+  private String n;
+  private NameCheckLambda nc;
   protected ArrayList<Node> ns = new ArrayList<>();
 
-  public NonTerminal(int sym, Node... ns) {
-    this(sym, Render.linearRender, 0, ns);
+  public NonTerminal(int sym, Node... ns) throws Exception {
+    this(sym, Render.linearRender, null, null, 0, ns);
   }
 
-  public NonTerminal(int sym, RenderLambda r, Node... ns) {
-    this(sym, r, 0, ns);
+  public NonTerminal(int sym, RenderLambda r, Node... ns) throws Exception {
+    this(sym, r, null, null, 0, ns);
   }
 
-  public NonTerminal(int sym, int var, Node... ns) {
-    this(sym, Render.linearRender, var, ns);
+  public NonTerminal(int sym, int var, Node... ns) throws Exception {
+    this(sym, Render.linearRender, null, null, var, ns);
   }
 
-  public NonTerminal(int sym, RenderLambda r, int var, Node... ns) {
+  public NonTerminal(int sym, RenderLambda r, int var, Node... ns) throws Exception {
+    this(sym, r, null, null, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, Object name, int var, Node... ns) throws Exception {
+    this(sym, r, name, null, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, NameCheckLambda nc, int var, Node... ns) throws Exception {
+    this(sym, r, null, nc, var, ns);
+  }
+
+  public NonTerminal(int sym, RenderLambda r, Object name, NameCheckLambda nc, int var, Node... ns) throws Exception {
     for (Node n : ns) {
       this.ns.add(n);
     }
     this.sym = sym;
     this.var = var;
     this.r = r;
+    this.n = (String) name;
+    this.nc = nc;
+    if (nc != null) nc.check(this);
   }
 
   public int length() {
@@ -48,7 +66,7 @@ public class NonTerminal implements Node {
     }
   }
 
-  public NonTerminal join(NonTerminal n) {
+  public NonTerminal join(NonTerminal n) throws Exception {
     Node[] nns = new Node[this.length() + n.length()];
     for (int i = 0; i < this.length(); i++) {
       nns[i] = this.get(i);
@@ -56,7 +74,7 @@ public class NonTerminal implements Node {
     for (int i = 0; i < n.length(); i++) {
       nns[i + this.length()] = n.get(i);
     }
-    return new NonTerminal(this.sym, this.r, this.var, nns);
+    return new NonTerminal(this.sym, this.r, this.n, this.nc, this.var, nns);
   }
 
   @Override
@@ -84,5 +102,9 @@ public class NonTerminal implements Node {
   @Override
   public String toRender() throws Exception {
     return r.render(this);
+  }
+
+  public String getName() {
+    return n;
   }
 }

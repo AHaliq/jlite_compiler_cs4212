@@ -6,6 +6,7 @@ import javasrc.jflex.Lexer;
 import javasrc.cup.Sym;
 import ast.*;
 import ast.concrete.Render;
+import ast.concrete.NameCheck;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -39,33 +40,33 @@ precedence left tok_or;
 /* The grammar */
 Program ::=
 	MainClass:m ClassDecl_Star:c
-		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, 0, (Node)m, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, NameCheck.classCheck, 0, (Node)m, (Node)c); :}
 ;
 
 MainClass ::=
   key_class cname:c tok_lbrace key_void key_main tok_lparen FmlList:l tok_rparen MdBody:b tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, c, 0, new Terminal(Sym.cname, c), (Node)l, (Node)b); :}
 | key_class cname:c tok_lbrace key_void key_main tok_lparen tok_rparen MdBody:b tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, 1, new Terminal(Sym.cname, c), (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MainClass, Render.mainClass, c, 1, new Terminal(Sym.cname, c), (Node)b); :}
 ;
 
 ClassDecl ::=
 	key_class cname:c tok_lbrace VarDecl_Star:v MdDecl_Star:m tok_rbrace
-		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
+		{: RESULT = new NonTerminal(Sym.ClassDecl, Render.classDecl, c, 0, new Terminal(Sym.cname, c), (Node)v, (Node)m); :}
 ;
 
 MdDecl ::=
 	Type:t id:i tok_lparen FmlList:l tok_rparen MdBody:b
-		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, i, 0, (Node)t, new Terminal(Sym.id, i), (Node)l, (Node)b); :}
 | Type:t id:i tok_lparen tok_rparen MdBody:b
-		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, 1, (Node)t, new Terminal(Sym.id, i), (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.MdDecl, Render.mdDecl, i, 1, (Node)t, new Terminal(Sym.id, i), (Node)b); :}
 ;
 
 FmlList ::=
 	Type:t id:i
-		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, 1, (Node)t, new Terminal(Sym.id, i))); :}
+		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, i, 1, (Node)t, new Terminal(Sym.id, i))); :}
 | Type:t id:i tok_comma FmlList:ls
-		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, 1, (Node)t, new Terminal(Sym.id, i))).join((NonTerminal) ls); :}
+		{: RESULT = new NonTerminal(Sym.FmlList, Render.fmlList, 0, new NonTerminal(Sym.FmlList, Render.fmlList, i, 1, (Node)t, new Terminal(Sym.id, i))).join((NonTerminal) ls); :}
 ;
 
 Type ::=
@@ -239,7 +240,7 @@ ClassDecl_Star ::=
 
 VarDecl ::=
 	Type:t id:i
-		{: RESULT = new NonTerminal(Sym.VarDecl, Render.varDecl, 0, (Node)t, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.VarDecl, Render.varDecl, i, 0, (Node)t, new Terminal(Sym.id, i)); :}
 ;
 
 VarDecl_Star ::=
