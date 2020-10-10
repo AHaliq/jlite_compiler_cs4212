@@ -1,13 +1,8 @@
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.HashMap;
 
-import ast.Node;
 import ast.NonTerminal;
-import ast.concrete.Render;
-import ast.concrete.types.InitTypeCheckObjects;
-import ast.concrete.types.LocalEnv;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import javasrc.jflex.Lexer;
@@ -31,9 +26,7 @@ public class App {
       NonTerminal ptn = (NonTerminal) pt.value;
       // build ast
 
-      HashMap<String,LocalEnv> cd = InitTypeCheckObjects.initialize(ptn);
-      LocalEnv le = new LocalEnv();
-      ptn.typeCheck(cd, le);
+      ptn.typeCheck();
       // run type checker
 
       if (is_compact) {

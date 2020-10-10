@@ -5,7 +5,9 @@ public enum PrimTypes {
   BOOL("Bool"),
   INT("Int"),
   STRING("String"),
-  IS_OK("isOk");  // not a type but is used in type checking
+  IS_OK("isOk"),  // not a type but is used in type checking
+  RET("~Ret"),    // not a type but is identifier for local env return type
+  THIS("~this");  // not a type but is identifier for this in local env
 
   private String s;
 

@@ -13,13 +13,13 @@ public class InitTypeCheckObjects {
 
     populateMainClass((NonTerminal) p.get(0), map);
     // populate for main class
-    
+
     ((NonTerminal) p.get(1)).forEach((c) -> {
       NonTerminal cnt = (NonTerminal) c;
       map.put(cnt.getName(), localEnvOfClass(cnt));
     });
     // populate for user classes
-
+    
     String illegals = map.values().stream().reduce(
       Arrays.stream(new String[]{}),
       (a,le) -> Stream.concat(a, le.illegalTypes(map)),
@@ -33,19 +33,9 @@ public class InitTypeCheckObjects {
   }
 
   public static void populateMainClass(NonTerminal mainNode, HashMap<String,LocalEnv> map) throws Exception {
-    NonTerminal fml = (NonTerminal) mainNode.get(1);
-    String[] params;
-    if (fml.getSym() == 0) {
-      params = new String[fml.length() + 1];
-      for(int i = 0; i < fml.length(); i++) {
-        params[i + 1] = ((NonTerminal) fml.get(i)).get(0).toRender();
-      }
-    } else {
-      params = new String[1];
-    }
-    params[0] = PrimTypes.VOID.getStr();
+    NonTerminal fml = mainNode.getVariant() == 0 ? (NonTerminal) mainNode.get(1) : null;
     LocalEnv mainLocalEnv = new LocalEnv();
-    mainLocalEnv.put("main", new MethodSignature(params));
+    mainLocalEnv.put("main", new MethodSignature(PrimTypes.VOID.getStr(), "main", fml));
     map.put(mainNode.getName(), mainLocalEnv);
   }
 
@@ -69,17 +59,6 @@ public class InitTypeCheckObjects {
   }
 
   public static void addMdToLocalEnv(NonTerminal md, LocalEnv e) throws Exception {
-    String[] params;
-    if (md.getVariant() == 0) {
-      NonTerminal fml = (NonTerminal) md.get(2);
-      params = new String[fml.length() + 1];
-      for(int i = 0; i < fml.length(); i++) {
-        params[i + 1] = ((NonTerminal) fml.get(i)).get(0).toRender();
-      }
-    } else {
-      params = new String[1];
-    }
-    params[0] = md.get(0).toRender();
-    e.put(md.getName(), new MethodSignature(params));
+    e.put(md.getName(), new MethodSignature(md));
   }
 }

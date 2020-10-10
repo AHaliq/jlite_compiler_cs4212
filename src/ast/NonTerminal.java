@@ -146,4 +146,8 @@ public class NonTerminal implements Node {
   public String typeCheck(HashMap<String, LocalEnv> cd, LocalEnv le) throws Exception {
     return tc.check(cd,le,this);
   }
+
+  public String typeCheck() throws Exception {
+    return tc.check(null, null, this);
+  }
 }

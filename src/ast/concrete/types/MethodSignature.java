@@ -3,45 +3,83 @@ package ast.concrete.types;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import ast.NonTerminal;
+
 public class MethodSignature {
 
   public static final String SEP = " -> ";
+  public static final String UNIT = "()";
   
-  private String[] types;
+  private String retType;
+  private String[] paramTypes;
+  private String[] paramIds;
 
-  public MethodSignature(String... types) {
-    this.types = types.length == 0 ? new String[]{PrimTypes.VOID.getStr()} : types;
+  public MethodSignature(NonTerminal mdDecl) throws Exception{
+    this(mdDecl.get(0).toRender(), mdDecl.get(1).toRender(), mdDecl.getVariant() == 0 ? (NonTerminal) mdDecl.get(2) : null);
+  }
+
+  public MethodSignature(String retType, String id) throws Exception {
+    this(retType, id, null);
+  }
+
+  public MethodSignature(String retType, String id, NonTerminal fmlList) throws Exception {
+    this.retType = retType;
+    if(fmlList != null) {
+      paramTypes = new String[fmlList.length()];
+      paramIds = new String[fmlList.length()];
+      for(int i = 0; i < fmlList.length(); i++) {
+        NonTerminal p = (NonTerminal) fmlList.get(i);
+        paramTypes[i] = p.get(0).toRender();
+        paramIds[i] = p.get(1).toRender();
+      }
+    }else {
+      paramTypes = new String[]{};
+      paramIds = new String[]{};
+    }
   }
 
   public int paramLength() {
-    return types.length - 1;
+    return paramTypes.length;
   }
 
-  public String get(int i) {
-    return types[i + 1];
+  public String getType(int i) {
+    return paramTypes[i];
+  }
+
+  public String getId(int i) {
+    return paramIds[i];
+  }
+
+  public int length() {
+    return paramTypes.length;
   }
 
   public String getReturn() {
-    return types[0];
+    return retType;
   }
 
   public boolean inT(HashMap<String, LocalEnv> cd) {
-    return Arrays.stream(types).allMatch(t -> TypeCheck.isT(cd, t));
+    if(!TypeCheck.isT(cd, retType)) return false;
+    return Arrays.stream(paramTypes).allMatch(t -> TypeCheck.isT(cd, t));
+  }
+
+  public String toTypeSignature() {
+    StringBuilder str = new StringBuilder();
+    if (paramTypes.length == 0) {
+      str.append(UNIT);
+      str.append(SEP);
+    }else {
+      for(int i = 0; i < paramTypes.length; i++) {
+        str.append(paramTypes[i]);
+        str.append(SEP);
+      }
+    }
+    str.append(retType);
+    return str.toString();
   }
 
   @Override
   public String toString() {
-    StringBuilder str = new StringBuilder();
-    if(types.length == 1) {
-      str.append("_");
-      str.append(SEP);
-    } else {
-      for(int i = 1; i < types.length; i++) {
-        str.append(types[i]);
-        str.append(SEP);
-      }
-    }
-    str.append(types[0]);
-    return str.toString();
+    return toTypeSignature();
   }
 }
