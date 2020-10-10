@@ -1,0 +1,1 @@
+EXCP: Expression 'new F()' does not match function param type in the function call

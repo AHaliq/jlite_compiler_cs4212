@@ -1,1 +1,1 @@
-EXCP: in class 'Test' method 'f, Int, String -> Void' duplicate found
+EXCP: in class 'Test' method 'f :: Int -> String -> Void' duplicate found

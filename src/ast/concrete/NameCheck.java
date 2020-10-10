@@ -3,6 +3,7 @@ package ast.concrete;
 import java.util.HashSet;
 
 import ast.NonTerminal;
+import ast.concrete.types.MethodSignature;
 import ast.Node;
 
 public class NameCheck {
@@ -31,14 +32,11 @@ public class NameCheck {
       HashSet<String> s = new HashSet<>();
       nNt.forEach((mNode) -> {
         NonTerminal m = (NonTerminal) mNode;
+        MethodSignature ms = new MethodSignature(m);
         StringBuilder str = new StringBuilder();
         str.append(m.getName());
-        if(m.getVariant() == 0) {
-          ((NonTerminal) m.get(2)).forEach((pNode) -> {
-            str.append(", " + ((NonTerminal) pNode).get(0).toRender());
-          });
-        }
-        str.append(" -> " + m.get(0).toRender());
+        str.append(" :: ");
+        str.append(ms.toString());
         String key = str.toString();
         if(s.contains(key)) {
           throw new Exception(msg + " method '" + key + "' duplicate found");

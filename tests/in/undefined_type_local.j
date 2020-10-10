@@ -1,6 +1,7 @@
 class Main {
   Void main() {
-    return new F();
+    F f;
+    f = new F();
   }
 }
 class F {
