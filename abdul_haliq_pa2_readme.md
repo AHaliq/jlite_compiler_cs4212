@@ -17,13 +17,13 @@ The higher order checker uses a `HashSet` to store the names retrieved from `get
 
 ### Overloaded Method Declaration check
 
-The checker for overloaded method declaration works similar to the higher order checker with the exception that instead of just the name being stored in the hash set, a string is generated from the method's `FmlList`. Thus a method defined as:
+The checker for overloaded method declaration works similar to the higher order checker with the exception that instead of just the name being stored in the hash set, ~~a string is generated from the method's `FmlList`~~ a `MethodSignature` instance is constructed and it generates the type signature string. This along with the method name. Thus a method defined as:
 
 ```
 Void f(Int i, String j) {...}
 ```
 
-will generate the string `f, Int, String -> Void`.
+will generate the string ~~`f, Int, String -> Void`~~ `f :: Int -> String -> Void`.
 
 These strings will be used as keys for the hash set.
 
@@ -35,11 +35,15 @@ Do note functions of the same name and same parameter and return type despite di
 
 We implement type checking similarly with a list of lambda functions to plug in to the production rules specified in CUPs.
 
-To perform type checking we used the hashmaps to simulate the class descriptor and local environment in the type introduction rules.
+To perform type checking we used hashmaps to simulate the class descriptor and local environment in the type introduction rules.
 
 The hash maps are initialized after the AST has been built via the `InitTypeCheckObjects` class.
 
 To define types for methods we made a `MethodSignature` class. However for simplicity sake, type checking lambdas pass around a string which could be
-both a value type or a method type. This is required as the production rules in assignment 1 did not localize atoms that are methods into its own production rule. `MethodSignature` then generates a type signature string which will be used as return value, and lambdas expecting a method signature will parse the string to get the types of the method signature. This encoding and decoding via strings can be avoided if we implement an algebraic data type for both kinds of types and use that for the return type of the lambdas. Performance can also be improved by encoding the types to integers and we can do comparison via integers rather than strings.
+both a value type or a method type. This is required as the production rules in assignment 1 did not localize atoms that are methods into its own production rule.
+
+`MethodSignature` then generates a type signature string which will be used as return value, and lambdas expecting a method signature will parse the string to get the types of the method signature. This encoding and decoding via strings can be avoided if we implement an algebraic data type for both kinds of types and use that for the return type of the lambdas. Performance can also be improved by encoding the types to integers and we can do comparison via integers rather than strings.
+
+Lastly we could also improve modularity by storing keywords such as `this` and `main` into an enum rather than typing them literally in `TypeCheck.java`
 
 We also used null in java to indicate null in jlite. When comparing types, if either is null, we declare it as a match.
