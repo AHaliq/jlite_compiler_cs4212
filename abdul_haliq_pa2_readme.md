@@ -37,7 +37,7 @@ We implement type checking similarly with a list of lambda functions to plug in 
 
 To perform type checking we used hashmaps to simulate the class descriptor and local environment in the type introduction rules.
 
-The hash maps are initialized after the AST has been built via the `InitTypeCheckObjects` class. Thus type checking is done after that.
+The hash maps are initialized after the AST has been built via the `InitTypeCheckObjects` class in the type check lambda for program. Thus it is possible to manually create a class descriptor and local environment and probe type check different parts of the tree rather than from the root program node.
 
 To define types for methods we made a `MethodSignature` class. However for simplicity sake, type checking lambdas pass around a string which could be
 both a value type or a method type. This is required as the production rules in assignment 1 did not localize atoms that are methods into its own production rule.
