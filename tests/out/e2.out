@@ -7,3 +7,21 @@ class Test{
 Int i;
 String y;
 }
+======= CData3 =======
+
+class Main{
+}
+
+class Test{
+  Int i;
+  String y;
+}
+
+======= CMtd3 =======
+
+Void main(Main this){
+  _t1 = "hi";
+  x = _t1;
+}
+
+=====fx== End of IR3 Program =======

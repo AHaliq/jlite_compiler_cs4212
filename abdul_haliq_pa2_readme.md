@@ -54,6 +54,18 @@ We also used null in java to indicate null in jlite. When comparing types, if ei
 
 ## IR3 Generation
 
+> I only noted on the night of submission day that I've implemented the IR grammar wrongly. I assumed temporaries were like registers in assembly language and are untyped. I set auxilary values to temporary variables and when i do not need them anymore they can be reused for other auxilar values. If I had more time I would change my implementation with the following to get it according to spec:
+>
+> make a new property in `NonTerminal` to store the type value during the type checking process and another field for method bodies to store the local environment.
+>
+> Thus when generating IR3 for method bodies we set the `IR3State` with an array of variable ids. Each element in the array representing a running id for the Type in T.
+>
+> Then we use the same mechanism as currently implemented for `tempid` to determine the variable to use when rendering IR3.
+>
+> Additionally we need a `maxid` variable for each type. Thus when we reach id values above max, we should generate a declaration. Alternatively we can store the IR3 rendering into a buffer and when the method body has finish writing, we can generate all the declarations based of maxids for each type and then flush the buffer to the actual string builder so that all declarations appear at the start of the method.
+>
+> I seek your lineency in grading my implementation, it is not far from the correct implementation, a generalization for types per `tempid` is all that is needed.
+
 We implement IR3 generation with the same methodology using lambdas and composing them in the CUP definition.
 
 A state object is used and passed between lambdas to keep track of render information such as temporary and label ids.
