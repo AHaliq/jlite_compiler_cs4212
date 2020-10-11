@@ -34,13 +34,13 @@ public class InitTypeCheckObjects {
 
   public static void populateMainClass(NonTerminal mainNode, HashMap<String,LocalEnv> map) throws Exception {
     NonTerminal fml = mainNode.getVariant() == 0 ? (NonTerminal) mainNode.get(1) : null;
-    LocalEnv mainLocalEnv = new LocalEnv();
-    mainLocalEnv.put("main", new MethodSignature(PrimTypes.VOID.getStr(), "main", fml));
+    LocalEnv mainLocalEnv = new LocalEnv(mainNode.getName());
+    mainLocalEnv.put("main", new MethodSignature(PrimTypes.VOID.getStr(), "main", fml, (NonTerminal) mainNode.get(mainNode.getVariant() == 0 ? 2 : 1)));
     map.put(mainNode.getName(), mainLocalEnv);
   }
 
   public static LocalEnv localEnvOfClass(NonTerminal c) throws Exception {
-    LocalEnv e = new LocalEnv();
+    LocalEnv e = new LocalEnv(c.getName());
     addFdDeclStarToLocalEnv((NonTerminal) c.get(1), e);
     addMdDeclStarToLocalEnv((NonTerminal) c.get(2), e);
     return e;

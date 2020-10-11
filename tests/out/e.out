@@ -1,17 +1,1 @@
-class Main{
-void main(Int i,Int a,Int b,Int d){
-While(true)
-{
-b=340;
-t1=t2;
-}
-}
-}
-class Dummy{
-Dummy j;
-Int dummy(){
-Bool i;
-Bool j;
-Return i;
-}
-}
+EXCP: identifier 't2' not found in context

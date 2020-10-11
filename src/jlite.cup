@@ -9,6 +9,7 @@ import ast.concrete.Render;
 import ast.concrete.NameCheck;
 import ast.concrete.NameCheckLambda;
 import ast.concrete.types.TypeCheck;
+import ast.concrete.ir3.IR3;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -42,7 +43,7 @@ precedence left tok_or;
 /* The grammar */
 Program ::=
 	MainClass:m ClassDecl_Star:c
-		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, new NameCheckLambda[]{NameCheck.classCheck((Node) c)}, TypeCheck.programCheck, 0, (Node)m, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.Program, Render.concatRender, new NameCheckLambda[]{NameCheck.classCheck((Node) c)}, TypeCheck.programCheck, IR3.program, 0, (Node)m, (Node)c); :}
 ;
 
 MainClass ::=
@@ -92,150 +93,152 @@ Type ::=
 
 MdBody ::=
 	tok_lbrace VarDecl_Star:v Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.MdBody, Render.mdBody, new NameCheckLambda[]{NameCheck.varDeclCheck((Node) v, "in a method")}, TypeCheck.takeLast, 0, (Node)v, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.MdBody, Render.mdBody, new NameCheckLambda[]{NameCheck.varDeclCheck((Node) v, "in a method")}, TypeCheck.takeLast, IR3.ir3all, 0, (Node)v, (Node)s); :}
 ;
 
 Stmt ::=
 	key_if tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s1 tok_rbrace key_else tok_lbrace Stmt_Plus:s2 tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.ifStmtCheck, 0, (Node)e, (Node)s1, (Node)s2); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.ifStmtCheck, IR3.ifStmt, 0, (Node)e, (Node)s1, (Node)s2); :}
 | key_if tok_lparen error tok_lbrace Stmt_Plus tok_rbrace key_else tok_lbrace Stmt_Plus tok_rbrace
 		{: RESULT = new ErrorNode("\nERROR: Missing right paren"); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace Stmt_Plus:s tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.whileStmtCheck, 1, (Node)e, (Node)s); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.whileStmtCheck, IR3.whileStmt, 1, (Node)e, (Node)s); :}
 | key_while tok_lparen Exp:e tok_rparen tok_lbrace tok_rbrace
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.vacuousWhileStmtCheck, 2, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.vacuousWhileStmtCheck, IR3.vacuousWhileStmt, 2, (Node)e); :}
 | key_readln tok_lparen id:i tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.readCheck, 3, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.readCheck, IR3.readLn, 3, new Terminal(Sym.id, i)); :}
 | key_println tok_lparen Exp:e tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.printCheck, 4, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.printCheck, IR3.printLn, 4, (Node)e); :}
 | id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.idAssignCheck, 5, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.idAssignCheck, IR3.assg, 5, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_dot id:i tok_assign Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.fdAssignCheck, 6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.fdAssignCheck, IR3.fdassg, 6, (Node)a, new Terminal(Sym.id, i), (Node)e); :}
 | Atom:a tok_lparen ExpList:l tok_rparen tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.funcCallCheck, 7, (Node)a, (Node)l); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.funcCallCheck, IR3.funcCall, 7, (Node)a, (Node)l); :}
+| Atom:a tok_lparen tok_rparen tok_scolon
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.vacuousFuncCallCheck, IR3.vacuousFuncCall, 10, (Node)a); :}
 | key_return Exp:e tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.returnCheck, 8, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.returnCheck, IR3.retVal, 8, (Node)e); :}
 | key_return tok_scolon
-		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.returnVoidCheck, 9); :}
+		{: RESULT = new NonTerminal(Sym.Stmt, Render.stmt, TypeCheck.returnVoidCheck, IR3.retVoid, 9); :}
 ;
 
 Exp ::=
 	BExp:e
-		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, 0, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, IR3.renderFirst, 0, (Node)e); :}
 | AExp:e
-		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, 1, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, IR3.renderFirst, 1, (Node)e); :}
 | SExp:e
-		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, 2, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Exp, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)e); :}
 ;
 
 BExp ::=
 	BExp:b tok_or Conj:c
-		{: RESULT = new NonTerminal(Sym.BExp, Render.bExp, TypeCheck.allBool, 0, (Node)b, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.BExp, Render.bExp, TypeCheck.allBool, IR3.orBinOp, 0, (Node)b, (Node)c); :}
 | Conj:c
-		{: RESULT = new NonTerminal(Sym.BExp, TypeCheck.passFirstCheck, 1, (Node)c); :}
+		{: RESULT = new NonTerminal(Sym.BExp, TypeCheck.passFirstCheck, IR3.renderFirst, 1, (Node)c); :}
 ;
 
 Conj ::=
 	Conj:c tok_and RExp:r
-		{: RESULT = new NonTerminal(Sym.Conj, Render.conj, TypeCheck.allBool, 0, (Node)c, (Node)r); :}
+		{: RESULT = new NonTerminal(Sym.Conj, Render.conj, TypeCheck.allBool, IR3.andBinOp, 0, (Node)c, (Node)r); :}
 | RExp:r
-		{: RESULT = new NonTerminal(Sym.Conj, TypeCheck.passFirstCheck, 1, (Node)r); :}
+		{: RESULT = new NonTerminal(Sym.Conj, TypeCheck.passFirstCheck, IR3.renderFirst, 1, (Node)r); :}
 ;
 
 RExp ::=
 	AExp:a1 BOp:b AExp:a2
-		{: RESULT = new NonTerminal(Sym.RExp, TypeCheck.allInt, 0, (Node)a1, (Node)b, (Node)a2); :}
+		{: RESULT = new NonTerminal(Sym.RExp, TypeCheck.rexpCheck, IR3.relBinOp, 0, (Node)a1, (Node)b, (Node)a2); :}
 | BGrd:b
-		{: RESULT = new NonTerminal(Sym.RExp, TypeCheck.passFirstCheck, 1, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.RExp, TypeCheck.passFirstCheck, IR3.renderFirst, 1, (Node)b); :}
 ;
 
 BOp ::=
 	tok_lt
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 0); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 0); :}
 | tok_gt
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 1); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 1); :}
 | tok_lte
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 2); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 2); :}
 | tok_gte
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 3); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 3); :}
 | tok_eq
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 4); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 4); :}
 | tok_neq
-		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, TypeCheck.intCheck, 5); :}
+		{: RESULT = new NonTerminal(Sym.BOp, Render.bOp, 5); :}
 ;
 
 BGrd ::=
 	tok_neg BGrd:b
-		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.allBool, 0, (Node)b); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.allBool, IR3.unaryOp("!"), 0, (Node)b); :}
 | key_true
-		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.boolCheck, 1); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.boolCheck, IR3.constT("true"), 1); :}
 | key_false
-		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.boolCheck, 2); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.boolCheck, IR3.constT("false"), 2); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.passFirstCheck, 3, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.BGrd, Render.bGrd, TypeCheck.passFirstCheck, IR3.renderFirst, 3, (Node)a); :}
 ;
 
 AExp ::=
 	AExp:a tok_plus Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, 0, (Node)a, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, IR3.arithBinOp("+"), 0, (Node)a, (Node)t); :}
 | AExp:a tok_minus Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, 1, (Node)a, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, IR3.arithBinOp("-"), 1, (Node)a, (Node)t); :}
 | Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.passFirstCheck, 2, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)t); :}
 ;
 
 Term ::=
 	Term:t tok_times Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.allInt, 0, (Node)t, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.allInt, IR3.arithBinOp("*"), 0, (Node)t, (Node)f); :}
 | Term:t tok_divide Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.allInt, 1, (Node)t, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.allInt, IR3.arithBinOp("/"), 1, (Node)t, (Node)f); :}
 | Ftr:f
-		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.passFirstCheck, 2, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Term, Render.term, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)f); :}
 ;
 
 Ftr ::=
 	integer_literal:i
-		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.intCheck, 0, new Terminal(Sym.integer_literal, i)); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.intCheck, IR3.constT((String) i), 0, new Terminal(Sym.integer_literal, i)); :}
 | tok_minus Ftr:f
-		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.allInt, 1, (Node)f); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.allInt, IR3.unaryOp("-"), 1, (Node)f); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.passFirstCheck, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.Ftr, Render.ftr, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)a); :}
 ;
 
 SExp ::=
 	SExp:s1 tok_plus SExp:s2
-		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.allString, 0, (Node)s1, (Node)s2); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.allString, IR3.arithBinOp("+"), 0, (Node)s1, (Node)s2); :}
 | string_literal:s
-		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.stringCheck, 1, new Terminal(Sym.string_literal, s)); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.stringCheck, IR3.constT("\"" + s + "\""), 1, new Terminal(Sym.string_literal, s)); :}
 | Atom:a
-		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.passFirstCheck, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)a); :}
 ;
 
 Atom ::=
 	Atom:a tok_dot id:i
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.fdCheck, 0, (Node)a, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.fdCheck, IR3.atomDot, 0, (Node)a, new Terminal(Sym.id, i)); :}
 | Atom:a tok_lparen ExpList:l tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.funcCallCheck, 1, (Node)a, (Node)l); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.funcCallCheck, IR3.atomFuncCall, 1, (Node)a, (Node)l); :}
 | Atom:a tok_lparen tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.vacuousFuncCallCheck, 2, (Node)a); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.vacuousFuncCallCheck, IR3.vacAtomFuncCall, 2, (Node)a); :}
 | key_this
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.thisCheck, 3); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.thisCheck, IR3.constT("this"), 3); :}
 | id:i
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.idCheck, 4, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.idCheck, IR3.constT((String) i), 4, new Terminal(Sym.id, i)); :}
 | key_new cname:c tok_lparen tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.constructorCheck, 5, new Terminal(Sym.cname, c)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.constructorCheck, IR3.constT(String.format("new %s()", (String) c)), 5, new Terminal(Sym.cname, c)); :}
 | tok_lparen Exp:e tok_rparen
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.passFirstCheck, 6, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.passFirstCheck, IR3.renderFirst, 6, (Node)e); :}
 | key_null
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, 7); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, IR3.constT("NULL"), 7); :}
 ;
 
 ExpList ::=
 	Exp:e
-		{: RESULT = new NonTerminal(Sym.ExpList, 0, (Node)e); :}
+		{: RESULT = new NonTerminal(Sym.ExpList, IR3.expList, 0, (Node)e); :}
 | Exp:e tok_comma ExpList:ls
-		{: RESULT = new NonTerminal(Sym.ExpList, 0, (Node)e).join((NonTerminal)ls); :}
+		{: RESULT = new NonTerminal(Sym.ExpList, IR3.expList, 0, (Node)e).join((NonTerminal)ls); :}
 ;
 
 /* BNF to CFG auxillary grammar */
@@ -248,14 +251,14 @@ ClassDecl_Star ::=
 
 VarDecl ::=
 	Type:t id:i
-		{: RESULT = new NonTerminal(Sym.VarDecl, Render.varDecl, i, TypeCheck.varDeclCheck, 0, (Node)t, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.VarDecl, Render.varDecl, i, TypeCheck.varDeclCheck, IR3.varDecl, 0, (Node)t, new Terminal(Sym.id, i)); :}
 ;
 
 VarDecl_Star ::=
 	VarDecl_Star:ls VarDecl:v tok_scolon 
-		{: RESULT = ((NonTerminal)ls).join(new NonTerminal(Sym.VarDecl_Star, Render.concatRender, TypeCheck.allOk, 0, (Node)v)); :}
+		{: RESULT = ((NonTerminal)ls).join(new NonTerminal(Sym.VarDecl_Star, Render.concatRender, TypeCheck.allOk, IR3.ir3all, 0, (Node)v)); :}
 |
-		{: RESULT = new NonTerminal(Sym.VarDecl_Star, Render.concatRender, TypeCheck.allOk, 0); :}
+		{: RESULT = new NonTerminal(Sym.VarDecl_Star, Render.concatRender, TypeCheck.allOk, IR3.ir3all, 0); :}
 ;
 
 MdDecl_Star ::=
@@ -267,12 +270,12 @@ MdDecl_Star ::=
 
 Stmt_Star ::=
 	Stmt:s Stmt_Star:ls
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, 0, (Node)s).join((NonTerminal)ls); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, IR3.ir3all, 0, (Node)s).join((NonTerminal)ls); :}
 |
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, 0); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, IR3.ir3all, 0); :}
 ;
 
 Stmt_Plus ::=
 	Stmt:s Stmt_Star:xs
-		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, 0, (Node)s).join((NonTerminal)xs); :}
+		{: RESULT = new NonTerminal(Sym.Stmt_Star, Render.concatRender, TypeCheck.takeLast, IR3.ir3all, 0, (Node)s).join((NonTerminal)xs); :}
 ;

@@ -13,16 +13,23 @@ public class MethodSignature {
   private String retType;
   private String[] paramTypes;
   private String[] paramIds;
+  public NonTerminal mdBody;  // actually not necessary to have reference to method body for caller nodes
+  private String ir3Name;
 
   public MethodSignature(NonTerminal mdDecl) throws Exception{
-    this(mdDecl.get(0).toRender(), mdDecl.get(1).toRender(), mdDecl.getVariant() == 0 ? (NonTerminal) mdDecl.get(2) : null);
+    this(
+      mdDecl.get(0).toRender(),
+      mdDecl.get(1).toRender(),
+      mdDecl.getVariant() == 0 ? (NonTerminal) mdDecl.get(2) : null,
+      (NonTerminal) mdDecl.get(mdDecl.getVariant() == 0 ? 3 : 2));
   }
 
-  public MethodSignature(String retType, String id) throws Exception {
-    this(retType, id, null);
+  public MethodSignature(String retType, String id, NonTerminal mdBody) throws Exception {
+    this(retType, id, null, mdBody);
   }
 
-  public MethodSignature(String retType, String id, NonTerminal fmlList) throws Exception {
+  public MethodSignature(String retType, String id, NonTerminal fmlList, NonTerminal mdBody) throws Exception {
+    this.mdBody = mdBody;
     this.retType = retType;
     if(fmlList != null) {
       paramTypes = new String[fmlList.length()];
@@ -37,6 +44,9 @@ public class MethodSignature {
       paramIds = new String[]{};
     }
   }
+
+  public void setIR3Name(String n) { this.ir3Name = n; }
+  public String getIR3Name() { return ir3Name; }
 
   public int paramLength() {
     return paramTypes.length;

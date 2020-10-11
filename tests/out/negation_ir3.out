@@ -1,0 +1,40 @@
+class Main{
+void main(){
+Bool b;
+b=[(!)[false],true](&&);
+Return;
+}
+}
+class F{
+Int val;
+Int f(String x,Int z){
+Return 0;
+}
+}
+======= CData3 =======
+
+class Main{
+}
+
+class F{
+  Int val;
+}
+
+======= CMtd3 =======
+
+Void main(Main this){
+  Bool b;
+  _t1 = false;
+  _t1 = !_t1;
+  _t2 = true;
+  _t1 = _t1 && _t2;
+  b = _t1;
+  Return;
+}
+
+Int %F_0(F this,String x,Int z){
+  _t1 = 0;
+  Return _t1;
+}
+
+=====fx== End of IR3 Program =======

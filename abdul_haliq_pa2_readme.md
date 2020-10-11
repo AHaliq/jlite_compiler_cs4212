@@ -5,6 +5,10 @@
 
 > User Guide is unchanged, please refer to [pa1 readme](abdul_haliq_pa1_readme.md) for more details on running the program
 
+## Changes in previous features
+
+There is an error in my assignment 1 implementation where statements of function calls with no arguments are not handled. This is now fixed.
+
 ## Distinct Name Checking
 
 How it is implemented is the nonterminal class now has a nullable `name` field and a nullable list of `nc` name checkers.
@@ -33,7 +37,7 @@ Do note functions of the same name and same parameter and return type despite di
 
 ## Type Checking
 
-We implement type checking similarly with a list of lambda functions to plug in to the production rules specified in CUPs.
+We implement type checking similarly with a list of lambda functions to plug in to the AST in the action for the production rules specified in CUP.
 
 To perform type checking we used hashmaps to simulate the class descriptor and local environment in the type introduction rules.
 
@@ -46,4 +50,22 @@ both a value type or a method type. This is required as the production rules in 
 
 Lastly we could also improve modularity by storing keywords such as `this` and `main` into an enum rather than typing them literally in `TypeCheck.java`
 
-We also used null in java to indicate null in jlite. When comparing types, if either is null, we declare it as a match.
+We also used null in java to indicate null in jlite. When comparing types, if either is null, we declare it as a match. This is done via the `teq` function.
+
+## IR3 Generation
+
+We implement IR3 generation with the same methodology using lambdas and composing them in the CUP definition.
+
+A state object is used and passed between lambdas to keep track of render information such as temporary and label ids.
+
+The program lambda is being used to generate the layout of the code, thus it is the most bloated lambda.
+
+Everything else however complies to the composable small reusable functions paradigm.
+
+### Getting `this` for function calls
+
+To get `this` we need to IR3 render the atom before the parantheses of the calling node.
+
+However doing this will lead to an IR3 chain of the last temporary variable be the function itself.
+
+To stop rendering one step short and to get the reference to the object we use for this, a hack was implemented in the form of a boolean flag `stopIdentifierRender` which in the atom dot lambda will capture the value and reset the flag, and if the value is true after evaluating the sub atoms it will refrain from continuing the chain of assigning the temp variable to the id. Thus we are able to prevent the last evaluation node and capture the value for `this`.

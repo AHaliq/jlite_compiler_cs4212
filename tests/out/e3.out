@@ -1,0 +1,67 @@
+class MainC{
+void main(){
+Functional fo;
+Int i;
+Int j;
+readln(i);
+If(i > 0)
+{
+fo=new Functional();
+j=[fo.f(i)];
+println(j);
+}
+else
+{
+println("Error");
+}
+Return;
+}
+}
+class Functional{
+Int a;
+Int f(Int b){
+Return 3;
+}
+}
+======= CData3 =======
+
+class MainC{
+}
+
+class Functional{
+  Int a;
+}
+
+======= CMtd3 =======
+
+Void main(MainC this){
+  Functional fo;
+  Int i;
+  Int j;
+  readln(i);
+  _t1 = i;
+  _t2 = 0;
+  _t1 = _t1 > _t2;
+  If(_t1) goto 1;
+  _t1 = "Error";
+  println(_t1);
+  goto 2;
+ Label 1:
+  _t1 = new Functional();
+  fo = _t1;
+  _t1 = fo;
+  _t2 = i;
+  _t1 = %Functional_0(_t1, _t2);
+  j = _t1;
+  _t1 = j;
+  println(_t1);
+ Label 2:
+  Return;
+}
+
+Int %Functional_0(Functional this,Int b){
+  _t1 = 3;
+  Return _t1;
+}
+
+=====fx== End of IR3 Program =======

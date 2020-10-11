@@ -1,0 +1,53 @@
+class Main{
+void main(){
+F x;
+Int v;
+v=[x.f("hey" 1)];
+x.g();
+Return;
+}
+}
+class F{
+Int val;
+Int f(String x,Int z){
+Return 0;
+}
+Int g(){
+Return 1;
+}
+}
+======= CData3 =======
+
+class Main{
+}
+
+class F{
+  Int val;
+}
+
+======= CMtd3 =======
+
+Void main(Main this){
+  F x;
+  Int v;
+  _t1 = x;
+  _t2 = "hey";
+  _t3 = 1;
+  _t1 = %F_0(_t1, _t2, _t3);
+  v = _t1;
+  _t1 = x;
+  %F_1(_t1);
+  Return;
+}
+
+Int %F_0(F this,String x,Int z){
+  _t1 = 0;
+  Return _t1;
+}
+
+Int %F_1(F this){
+  _t1 = 1;
+  Return _t1;
+}
+
+=====fx== End of IR3 Program =======

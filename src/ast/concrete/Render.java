@@ -103,6 +103,8 @@ public class Render {
         return String.format("Return %s;", n.get(0).toRender());
       case 9:
         return "Return;";
+      case 10:
+        return String.format("%s();", n.get(0).toRender());
       default:
         return Render.linearRender.render(n);
     }

@@ -21,20 +21,23 @@ public class App {
       Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("2");
       Boolean is_compact = args.length > 2 && args[2].equalsIgnoreCase("1");
       // resolve execution variables
-
+      
       pt = is_debug ? p.debug_parse() : p.parse();
       NonTerminal ptn = (NonTerminal) pt.value;
       // build ast
-
+      
       ptn.typeCheck();
       // run type checker
-
+      
       if (is_compact) {
         System.out.println(ptn.toRender());
       } else {
         System.out.println(Util.pretty(ptn.toRender(), is_indent));
       }
-      // render code
+      // render jlite code
+
+      System.out.println(ptn.toIR3().str.toString());
+      // render ir3 code
     } catch (Exception e) {
       System.out.println("EXCP: " + e.getMessage());
     } finally {

@@ -8,13 +8,20 @@ import java.util.stream.Stream;
 public class LocalEnv {
   private HashMap<String, String> fd = new HashMap<>();
   private HashMap<String, MethodSignature> sig = new HashMap<>();
+  private HashMap<String, String> mdIR3Name = new HashMap<>();
+  private int mdId = 0;
+  private String cname;
 
-  public LocalEnv() {}
+  public LocalEnv() { this(""); }
+  public LocalEnv(String cname) { this.cname = cname; }
 
   @SuppressWarnings("unchecked")
-  public LocalEnv(HashMap<String, String> fd, HashMap<String, MethodSignature> sig) {
+  public LocalEnv(HashMap<String, String> fd, HashMap<String, MethodSignature> sig, HashMap<String, String> mdIR3Name, String cname, int mdId) {
+    this.mdId = mdId;
+    this.cname = cname;
     this.fd = (HashMap<String,String>) fd.clone();
     this.sig = (HashMap<String, MethodSignature>) sig.clone();
+    this.mdIR3Name = (HashMap<String, String>) mdIR3Name.clone();
   }
 
   public void put(String id, String val) { 
@@ -23,6 +30,7 @@ public class LocalEnv {
 
   public void put(String id, MethodSignature val) {
     sig.put(id,val);
+    mdIR3Name.put(id,String.format("%%%s_%d", cname, mdId++));
   }
 
   public void put(MethodSignature mds) {
@@ -62,8 +70,16 @@ public class LocalEnv {
     return sig.entrySet();
   }
 
+  public String getIR3(String id) {
+    return mdIR3Name.get(id);
+  }
+
   public LocalEnv clone() {
-    return new LocalEnv(fd, sig);
+    return new LocalEnv(fd, sig, mdIR3Name, cname, mdId);
+  }
+
+  public LocalEnv clone(String name) {
+    return new LocalEnv(fd, sig, mdIR3Name, name, mdId);
   }
 
   public Stream<String> illegalTypes(HashMap<String,LocalEnv> cd) {
