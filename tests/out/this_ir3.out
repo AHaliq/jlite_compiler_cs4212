@@ -27,21 +27,26 @@ class F{
 ======= CMtd3 =======
 
 Void main(Main this){
+  F _t1;
+  Int _t2;
   F x;
   Int v;
   _t1 = x;
-  _t1 = %F_1(_t1);
-  v = _t1;
+  _t2 = %F_1(_t1);
+  v = _t2;
   Return;
 }
 
 Int %F_0(F this,String x,Int z){
+  F _t1;
+  Int _t2;
   _t1 = this;
-  _t1 = _t1.val;
-  Return _t1;
+  _t2 = _t1.val;
+  Return _t2;
 }
 
 Int %F_1(F this){
+  Int _t1;
   _t1 = 1;
   Return _t1;
 }

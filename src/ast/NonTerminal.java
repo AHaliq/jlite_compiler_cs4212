@@ -27,6 +27,7 @@ public class NonTerminal implements Node {
   private NameCheckLambda[] nc;
   private TypeCheckLambda tc;
   public MethodSignature mds; // Hack to inject method body definition into caller nodes for IR3 gen
+  public String tpe; // Hack to inject node type value
   protected ArrayList<Node> ns = new ArrayList<>();
 
   public NonTerminal(int sym, Node... ns) throws Exception {

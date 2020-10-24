@@ -36,7 +36,7 @@ public class App {
       }
       // render jlite code
 
-      System.out.println(ptn.toIR3().str.toString());
+      System.out.println(ptn.toIR3().strfull.toString());
       // render ir3 code
     } catch (Exception e) {
       System.out.println("EXCP: " + e.getMessage());

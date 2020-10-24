@@ -138,6 +138,7 @@ public class TypeCheck {
       }
       return new RetType(mds);
     }
+    n.tpe = fdt;
     return new RetType(fdt);
   };
 
@@ -198,6 +199,7 @@ public class TypeCheck {
       mds.setIR3Name(le.getIR3(id));
       return new RetType(mds);
     }
+    n.tpe = fdt.getId();
     return fdt;
   };
 
@@ -206,6 +208,7 @@ public class TypeCheck {
     if(!cd.containsKey(c)) {
       throw new Exception("cannot construct instance of undefined class '" + c + "'");
     }
+    n.tpe = c;
     return new RetType(c);
   };
 
@@ -217,18 +220,22 @@ public class TypeCheck {
         !teq(a2.typeCheck(cd, le), PrimTypes.INT.getStr())) {
       throw new Exception("operands are not Int in the expr: " + n.toRender());
     }
-
+    n.tpe = PrimTypes.INT.getStr();
     return new RetType(PrimTypes.BOOL.getStr());
   };
 
   // typecheck lambdas --------------------------------------------------------
 
   public static TypeCheckLambda passFirstCheck = (cd, le, n) -> {
-    return ((NonTerminal) n.get(0)).typeCheck(cd, le);
+    RetType r = ((NonTerminal) n.get(0)).typeCheck(cd, le);
+    if (r.isId()) {
+      n.tpe = r.getId();
+    }
+    return r;
   };
 
   public static TypeCheckLambda lookupLE(String id) {
-    return (cd,le,n) -> new RetType(le.getFd(id));
+    return (cd,le,n) -> { String t = le.getFd(id); n.tpe = t; return new RetType(t); };
   }
 
   public static RetType methodCallCheck(HashMap<String, LocalEnv> cd, LocalEnv le, NonTerminal f, NonTerminal expList, NonTerminal caller) throws Exception {
@@ -256,6 +263,7 @@ public class TypeCheck {
         throw new Exception("Expression '" + e.toRender() + "' does not match function param type in the function call");
       }
     }
+    caller.tpe = ts[ts.length - 1];
     return new RetType(ts[ts.length-1]);
   }
 
@@ -288,6 +296,7 @@ public class TypeCheck {
           throw new Exception("expecting all operands to be " + t + " but encountered '" + n.get(i).toRender() + "'");
         }
       }
+      n.tpe = t;
       return new RetType(t);
     };
   }
@@ -311,7 +320,7 @@ public class TypeCheck {
   public static TypeCheckLambda stringCheck = constCheck(PrimTypes.STRING.getStr());
 
   public static TypeCheckLambda constCheck(String s) {
-    return (cd, le, n) -> { return new RetType(s); };
+    return (cd, le, n) -> { n.tpe = s; return new RetType(s); };
   }
 
   // higher order lambdas -----------------------------------------------------

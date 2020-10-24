@@ -23,15 +23,19 @@ class F{
 ======= CMtd3 =======
 
 Void main(Main this){
+  String _t2;
+  String _t3;
+  Int _t1;
   String s;
-  _t1 = "hey";
-  _t2 = "there";
-  _t1 = _t1 + _t2;
+  _t2 = "hey";
+  _t3 = "there";
+  _t1 = _t2 + _t3;
   s = _t1;
   Return;
 }
 
 Int %F_0(F this,String x,Int z){
+  Int _t1;
   _t1 = 0;
   Return _t1;
 }

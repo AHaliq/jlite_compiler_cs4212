@@ -18,6 +18,7 @@ public class IR3 {
       s.str.append("}\n\n");
     }
     s.str.append("======= CMtd3 =======\n\n");
+    s.flush();
     NonTerminal mainFml = (NonTerminal) (mainNode.getVariant() == 0 ? mainNode.get(1) : null);
     NonTerminal mainBody = (NonTerminal) mainNode.get(mainNode.getVariant() == 0 ? 2 : 1);
     s = cmtd(s, PrimTypes.VOID.getStr(), "main", mainNode.getName(), mainFml, mainBody, false);
@@ -32,6 +33,7 @@ public class IR3 {
       }
     }
     s.str.append("=====fx== End of IR3 Program =======");
+    s.flush();
     return s;
   };
 
@@ -47,7 +49,7 @@ public class IR3 {
 
     s = e.toIR3(s);
     int l1 = s.getLabel();
-    s.str.append(ir3if(s, s.getNextT(), l1));
+    s.str.append(ir3if(s, s.getSavedT(), l1));
     s = s2.toIR3(s);
     int l2 = s.getLabel();
     s.str.append(s.formGoto(l2));
@@ -74,14 +76,14 @@ public class IR3 {
   public static IR3Lambda printLn = (s, n) -> {
     NonTerminal e = (NonTerminal) n.get(0);
     s = e.toIR3(s);
-    s.str.append(String.format("  println(%s);\n", s.getNextT()));
+    s.str.append(String.format("  println(%s);\n", s.getSavedT()));
     return s;
   };
 
   public static IR3Lambda assg = (s, n) -> {
     NonTerminal e = (NonTerminal) n.get(1);
     s = e.toIR3(s);
-    s.str.append(String.format("  %s = %s;\n", n.get(0).toRender(), s.getNextT()));
+    s.str.append(String.format("  %s = %s;\n", n.get(0).toRender(), s.getSavedT()));
     return s;
   };
 
@@ -94,23 +96,21 @@ public class IR3 {
     for(int i = 0; i < n.length(); i++) {
       NonTerminal e = (NonTerminal) n.get(i);
       s = e.toIR3(s);
-      part.append(s.getNextT());
+      part.append(s.getSavedT());
       if (i < n.length() - 1) part.append(", ");
-      s.save();
     }
-    s.saveChunk.push(n.length());
     s.ir3Parts.push(part.toString());
     return s;
   };
 
-  public static IR3Lambda funcCall = genFuncCall("");
+  public static IR3Lambda funcCall = genFuncCall(false);
 
-  public static IR3Lambda vacuousFuncCall = genFuncCall("", true);
+  public static IR3Lambda vacuousFuncCall = genFuncCall(false, true);
 
   public static IR3Lambda retVal = (s, n) -> {
     NonTerminal e = (NonTerminal) n.get(0);
     s = e.toIR3(s);
-    s.str.append(String.format("  Return %s;\n", s.getNextT()));
+    s.str.append(String.format("  Return %s;\n", s.getSavedT()));
     return s;
   };
 
@@ -120,11 +120,17 @@ public class IR3 {
   };
 
   public static IR3Lambda orBinOp = (s, n) -> {
-    return IR3.binOp("  " + s.getNextT() + " = %s || %s;\n", 0, 1).render(s, n);
+    String t = s.getT(PrimTypes.BOOL.getStr());
+    s =  IR3.binOp("  " + t + " = %s || %s;\n", 0, 1).render(s, n);
+    s.savedT = t;
+    return s;
   };
 
   public static IR3Lambda andBinOp = (s, n) -> {
-    return IR3.binOp("  " + s.getNextT() + " = %s && %s;\n", 0, 1).render(s, n);
+    String t = s.getT(PrimTypes.BOOL.getStr());
+    s = IR3.binOp("  " + t + " = %s && %s;\n", 0, 1).render(s, n);
+    s.savedT = t;
+    return s;
   };
 
   public static IR3Lambda atomDot = (s, n) -> {
@@ -134,40 +140,45 @@ public class IR3 {
     String id = n.get(1).toRender();
     s = e.toIR3(s);
     if (stopRender) return s;
-    s.str.append(String.format("  %s = %s.%s;\n", s.getNextT(), s.getNextT(), id));
+    String at = s.getSavedT();
+    String et = s.getT(n.tpe);
+    s.str.append(String.format("  %s = %s.%s;\n", et, at, id));
+    s.savedT = et;
     return s;
   };
 
   public static IR3Lambda atomFuncCall = (s, n) -> {
-    return genFuncCall(s.getNextT()+ " = ").render(s, n);
+    return genFuncCall(true).render(s, n);
   };
 
 
   public static IR3Lambda vacAtomFuncCall = (s, n) -> {
-    return genFuncCall(s.getNextT()+ " = ", true).render(s, n);
+    return genFuncCall(true, true).render(s, n);
   };
 
   // concrete lambdas ---------------------------------------------------------
 
-  public static IR3Lambda genFuncCall(String pre){
+  public static IR3Lambda genFuncCall(boolean pre){
     return genFuncCall(pre, false);
   }
 
-  public static IR3Lambda genFuncCall(String pre, boolean vac) {
+  public static IR3Lambda genFuncCall(boolean pre, boolean vac) {
     return (s,n) -> {
       NonTerminal a = (NonTerminal) n.get(0);
       s.stopIdentifierRender = true;
       s = a.toIR3(s);
-      String tthis = s.getNextT();
+      String tthis = s.getSavedT();
       if(!vac) {
-        s.save();
         NonTerminal els = (NonTerminal) n.get(1);
         s = els.toIR3(s);
-        int cw = s.saveChunk.pop();
-        for(int i = 0; i < cw; i++) s.free();
-        s.free();
       }
-      s.str.append(String.format("  %s%s(%s%s);\n", pre, n.mds.getIR3Name(), tthis, vac ? "" : (", " + s.ir3Parts.pop())));
+      String preS = "";
+      if(pre) {
+        String rt = s.getT(n.mds.getReturn());
+        preS = String.format("%s = ", rt);
+        s.savedT = rt;
+      }
+      s.str.append(String.format("  %s%s(%s%s);\n", preS, n.mds.getIR3Name(), tthis, vac ? "" : (", " + s.ir3Parts.pop())));
       return s;
     };
   }
@@ -176,25 +187,36 @@ public class IR3 {
     return (s, n) -> {
       NonTerminal e = (NonTerminal) n.get(0);
       s = e.toIR3(s);
-      s.str.append(String.format("  %s = %s%s;\n", s.getNextT(), op, s.getNextT()));
+      String et = s.getSavedT();
+      String rt = s.getT(n.tpe);
+      s.str.append(String.format("  %s = %s%s;\n", rt, op, et));
+      s.savedT = rt;
       return s;
     };
   }
 
   public static IR3Lambda constT(String str) {
     return (s, n) -> {
-      s.str.append(String.format("  %s = %s;\n", s.getNextT(),str));
+      String rt = s.getT(n.tpe);
+      s.str.append(String.format("  %s = %s;\n", rt, str));
+      s.savedT = rt;
       return s;
     };
   }
 
   public static IR3Lambda relBinOp = (s, n) -> {
-    return IR3.binOp("  " + s.getNextT() + " = %s " + n.get(1).toRender() + " %s;\n", 0, 2).render(s, n);
+    String rt = s.getT(PrimTypes.BOOL.getStr());
+    s = IR3.binOp("  " + rt + " = %s " + n.get(1).toRender() + " %s;\n", 0, 2).render(s, n);
+    s.savedT = rt;
+    return s;
   };
 
   public static IR3Lambda arithBinOp(String op) {
     return (s, n) -> {
-      return IR3.binOp("  " + s.getNextT() + " = %s " + op + " %s;\n", 0, 1).render(s, n);
+      String rt = s.getT(PrimTypes.INT.getStr());
+      s = IR3.binOp("  " + rt + " = %s " + op + " %s;\n", 0, 1).render(s, n);
+      s.savedT = rt;
+      return s;
     };
   }
 
@@ -203,12 +225,9 @@ public class IR3 {
       NonTerminal e1 = (NonTerminal) n.get(i);
       NonTerminal e2 = (NonTerminal) n.get(j);
       s = e1.toIR3(s);
-      s.save();
+      String t1 = s.getSavedT();
       s = e2.toIR3(s);
-      String t2 = s.getNextT();
-      s.free();
-      String t1 = s.getNextT();
-
+      String t2 = s.getSavedT();
       s.str.append(String.format(fmt, t1, t2));
       return s;
     };
@@ -222,7 +241,7 @@ public class IR3 {
       s.str.append(s.formLabel(l1));
       s = e.toIR3(s);
       int l2 = s.getLabel();
-      s.str.append(ir3if(s, s.formT(0), l2));
+      s.str.append(ir3if(s, s.getSavedT(), l2));
       int l3 = s.getLabel();
       s.str.append(s.formGoto(l3));
       s.str.append(s.formLabel(l2));
@@ -252,7 +271,9 @@ public class IR3 {
       }
     }
     s.str.append("){\n");
+    s.flush();
     s = mdBody.toIR3(s);
+    s.flush();
     s.str.append("}\n\n");
     s.resetLabels();
     return s;

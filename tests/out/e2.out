@@ -20,6 +20,7 @@ class Test{
 ======= CMtd3 =======
 
 Void main(Main this){
+  String _t1;
   _t1 = "hi";
   x = _t1;
 }

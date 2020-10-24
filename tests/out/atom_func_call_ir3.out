@@ -24,17 +24,22 @@ class F{
 ======= CMtd3 =======
 
 Void main(Main this){
+  F _t1;
+  String _t2;
+  Int _t3;
+  Int _t4;
   F x;
   Int v;
   _t1 = x;
   _t2 = "hey";
   _t3 = 1;
-  _t1 = %F_0(_t1, _t2, _t3);
-  v = _t1;
+  _t4 = %F_0(_t1, _t2, _t3);
+  v = _t4;
   Return;
 }
 
 Int %F_0(F this,String x,Int z){
+  Int _t1;
   _t1 = 0;
   Return _t1;
 }

@@ -35,31 +35,41 @@ class Functional{
 ======= CMtd3 =======
 
 Void main(MainC this){
+  Functional _t5;
+  Functional _t6;
+  Bool _t1;
+  String _t4;
+  Int _t2;
+  Int _t3;
+  Int _t7;
+  Int _t8;
+  Int _t9;
   Functional fo;
   Int i;
   Int j;
   readln(i);
-  _t1 = i;
-  _t2 = 0;
-  _t1 = _t1 > _t2;
+  _t2 = i;
+  _t3 = 0;
+  _t1 = _t2 > _t3;
   If(_t1) goto 1;
-  _t1 = "Error";
-  println(_t1);
+  _t4 = "Error";
+  println(_t4);
   goto 2;
  Label 1:
-  _t1 = new Functional();
-  fo = _t1;
-  _t1 = fo;
-  _t2 = i;
-  _t1 = %Functional_0(_t1, _t2);
-  j = _t1;
-  _t1 = j;
-  println(_t1);
+  _t5 = new Functional();
+  fo = _t5;
+  _t6 = fo;
+  _t7 = i;
+  _t8 = %Functional_0(_t6, _t7);
+  j = _t8;
+  _t9 = j;
+  println(_t9);
  Label 2:
   Return;
 }
 
 Int %Functional_0(Functional this,Int b){
+  Int _t1;
   _t1 = 3;
   Return _t1;
 }

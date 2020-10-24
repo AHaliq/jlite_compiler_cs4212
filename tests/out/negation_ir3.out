@@ -23,16 +23,21 @@ class F{
 ======= CMtd3 =======
 
 Void main(Main this){
+  Bool _t1;
+  Bool _t2;
+  Bool _t3;
+  Bool _t4;
   Bool b;
-  _t1 = false;
-  _t1 = !_t1;
-  _t2 = true;
-  _t1 = _t1 && _t2;
+  _t2 = false;
+  _t3 = !_t2;
+  _t4 = true;
+  _t1 = _t3 && _t4;
   b = _t1;
   Return;
 }
 
 Int %F_0(F this,String x,Int z){
+  Int _t1;
   _t1 = 0;
   Return _t1;
 }
