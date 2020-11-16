@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.Reader;
 
 import ast.NonTerminal;
+import ast.concrete.arm.Backend;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.Symbol;
 import javasrc.jflex.Lexer;
@@ -36,8 +37,13 @@ public class App {
       }
       // render jlite code
 
-      System.out.println(ptn.toIR3().strfull.toString());
+      String ir3 = ptn.toIR3().strfull.toString();
+      System.out.println(ir3);
       // render ir3 code
+
+      String arm = Backend.armOfIR3(ir3);
+      System.out.println(arm);
+      // render arm code
     } catch (Exception e) {
       System.out.println("EXCP: " + e.getMessage());
     } finally {

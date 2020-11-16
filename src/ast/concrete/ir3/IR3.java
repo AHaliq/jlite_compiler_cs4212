@@ -4,9 +4,11 @@ import ast.NonTerminal;
 import ast.concrete.types.PrimTypes;
 
 public class IR3 {
-
+  public static String DATA_START = "======= CData3 =======\n\n";
+  public static String MTD_START = "======= CMtd3 =======\n\n";
+  public static String IR3_END = "=====fx== End of IR3 Program =======";
   public static IR3Lambda program = (s, n) -> {
-    s.str.append("======= CData3 =======\n\n");
+    s.str.append(DATA_START);
     NonTerminal mainNode = (NonTerminal) n.get(0);
     s.str.append(String.format("class %s{\n}\n\n", mainNode.getName()));
     NonTerminal cds = (NonTerminal) n.get(1);
@@ -17,7 +19,7 @@ public class IR3 {
       s = vds.toIR3(s);
       s.str.append("}\n\n");
     }
-    s.str.append("======= CMtd3 =======\n\n");
+    s.str.append(MTD_START);
     s.flush();
     NonTerminal mainFml = (NonTerminal) (mainNode.getVariant() == 0 ? mainNode.get(1) : null);
     NonTerminal mainBody = (NonTerminal) mainNode.get(mainNode.getVariant() == 0 ? 2 : 1);
@@ -32,7 +34,7 @@ public class IR3 {
         s = cmtd(s, m.get(0).toRender(), m.getName(), c.getName(), fml, mdb);
       }
     }
-    s.str.append("=====fx== End of IR3 Program =======");
+    s.str.append(IR3_END);
     s.flush();
     return s;
   };
