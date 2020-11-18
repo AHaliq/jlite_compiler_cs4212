@@ -47,6 +47,36 @@ public class IR3Parser {
     return bodies;
   }
 
+  public static String[] getFunctionArguments(String ir3part) throws Exception{
+    String head = ir3part.split("\n")[0];
+    Pattern r = Pattern.compile(".*\\((.*)\\)\\{.*");
+    Matcher m = r.matcher(head);
+    if(m.matches()) {
+      return m.group(1).split(",");
+    }
+    throw new Exception("improper IR3 code when calling `getFunctionArguments`");
+  }
+
+  public static String getFunctionName(String ir3part) throws Exception {
+    String head = ir3part.split("\n")[0];
+    Pattern r = Pattern.compile("[A-Z][a-z]*\\s%?(.*)\\(.*");
+    Matcher m = r.matcher(head);
+    if (m.matches()) {
+      return m.group(1);
+    }
+    throw new Exception("improper IR3 code when calling `getFunctionName`");
+  }
+
+  public static String getFunctionReturnType(String ir3part) throws Exception {
+    String head = ir3part.split("\n")[0];
+    Pattern r = Pattern.compile("([A-Z][a-z]*)\\s.*");
+    Matcher m = r.matcher(head);
+    if (m.matches()) {
+      return m.group(1);
+    }
+    throw new Exception("improper IR3 code when calling `getFunctionReturnType`");
+  }
+
   public static String sigToName(String sig) {
     String firstLine = sig.split("\n")[0];
     String nameAndBrace = firstLine.split("class ")[1];
