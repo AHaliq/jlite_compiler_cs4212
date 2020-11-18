@@ -27,7 +27,13 @@ public class Backend {
 
     // render string data
 
-    return buf.toString();
+    StringBuilder buf2 = new StringBuilder();
+    // TODO output string data
+    buf2.append(ArmRender.PROLOGUE);
+    // output ARM prologue
+    buf2.append(buf.toString());
+    // output methods
+    return buf2.toString();
   }
 
   public static String renderMtd(String mtd, Integer exitIndex, HashMap<String, Integer> objMap) throws Exception {

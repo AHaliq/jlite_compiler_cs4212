@@ -1,14 +1,3 @@
-
-YOU MIGHT NOT NEED THIS.. YOU CAN JUST DIRECTLY RENDER ARM LIKE U DID IR3
-===============
-
-make classes or functions to generate ARM instruction
-	data_instr
-	mov_instr
-	cmp_instr
-	multiply_instr
-	jump_no_save
-
 SELECTION MAP GENERATOR
 =========================
 
@@ -120,5 +109,7 @@ global backend program
 ===
 TODO
 
-figure out malloc instruction
-modify noopt to take in arguments as well
+start render instructions
+  - figure out malloc when encounter string concat or new
+  - figure out string literal container when encounter string literals
+  - figure out spilling when encounter read write to spilled variables

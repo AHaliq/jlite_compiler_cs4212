@@ -8,6 +8,7 @@ public class ArmRender {
   public static Integer STACK_BASE_WIDTH = (RegisterAllocation.R + 1) * WIDTH;
   public static String STACK_SETUP = String.format("%sstmfd sp!,{fp,lr,%s}\n%sadd fp,sp,#%d\n", INDENT, String.join(",", RegisterAllocation.VAR_REGS), INDENT, STACK_BASE_WIDTH);
   public static String STACK_POP = String.format("%ssub sp,fp,#%d\n%sldmfd sp!,{fp,pc,%s}\n", INDENT, STACK_BASE_WIDTH, INDENT, String.join(",", RegisterAllocation.VAR_REGS));
+  public static String PROLOGUE = String.format("%s.text\n%s.global main\n", INDENT, INDENT);
 
   public static String stackSetupWSpill(Integer spill) {
     return String.format("%s%ssub sp,fp,#%d\n", STACK_SETUP, INDENT, STACK_BASE_WIDTH + WIDTH * spill);
