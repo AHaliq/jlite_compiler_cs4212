@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import ast.NonTerminal;
+import ast.Terminal;
 
 public class TypeCheck {
 
@@ -288,6 +289,23 @@ public class TypeCheck {
   public static TypeCheckLambda allInt = allCheck(PrimTypes.INT.getStr());
 
   public static TypeCheckLambda allString = allCheck(PrimTypes.STRING.getStr());
+
+  public static TypeCheckLambda aExpCheck = (cd, le, n) -> {
+    RetType t = ((NonTerminal) n.get(0)).typeCheck(cd, le);
+    System.out.println(t.toString());
+    String tpe;
+    try {
+      tpe = t.getId();
+    } catch(Exception e) {
+      tpe = t.getMd().getReturn();
+    }
+    if (tpe.equals(PrimTypes.INT.getStr())) {
+      return allInt.check(cd ,le, n);
+    } else if (tpe.equals(PrimTypes.STRING.getStr())) {
+      return allString.check(cd, le, n);
+    }
+    throw new Exception("add operation occured on non string nor integer : " + n.toRender());
+  };
 
   public static TypeCheckLambda allCheck(String t) {
     return (cd, le, n) -> {

@@ -1,19 +1,21 @@
 DIR:=$(strip $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 JFLEX:=$(DIR)/lib/jflex-full-1.8.2.jar
 CUP:=$(DIR)/lib/java-cup-11b.jar
+COM:=$(DIR)/lib/commons-text-1.9.jar
+COML:=$(DIR)/lib/commons-lang3-3.11.jar
 build:
 	@java -jar $(CUP) -expect 3 -destdir $(DIR)/src/javasrc/cup -parser Parser -symbols Sym -nonterms $(DIR)/src/jlite.cup
 	@echo "successful cup"
 	@echo "1/3\n"
-	@java -cp $(DIR)/src:$(JFLEX) jflex.Main -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
+	@java -cp $(DIR)/src:$(JFLEX):$(COM):$(COML) jflex.Main -d $(DIR)/src/javasrc/jflex $(DIR)/src/jlite.flex
 	@echo "successful flex"
 	@echo "2/3\n"
-	@javac -cp $(CUP):$(JFLEX) -sourcepath $(DIR)/src -d $(DIR)/bin $(DIR)/src/App.java
+	@javac -cp $(CUP):$(JFLEX):$(COM):$(COML) -sourcepath $(DIR)/src -d $(DIR)/bin $(DIR)/src/App.java
 	@echo "successful app"
 	@echo "3/3\n"
 
 run:
-	@java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0)
+	@java --class-path $(DIR)/bin:$(CUP):$(COM):$(COML) App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0)
 
 clean:
 	@rm -rf $(DIR)/bin
@@ -26,7 +28,7 @@ clean:
 test: $(DIR)/tests/in/*
 	@for file in $^ ; do \
 		echo "\n"test case: $${file##*/} ; \
-		java --class-path $(DIR)/bin:$(DIR)/lib/java-cup-11b.jar App $${file} $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0) > out; \
+		java --class-path $(DIR)/bin:$(CUP):$(COM):$(COML) App $${file} $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0) > out; \
 		diff out $(DIR)/tests/out/$$(echo $${file##*/} | cut -f 1 -d '.').out ; \
 	done
 	@rm out

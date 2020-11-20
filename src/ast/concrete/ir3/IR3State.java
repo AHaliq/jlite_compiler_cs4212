@@ -10,10 +10,13 @@ public class IR3State {
   private int tempid = 0;
   public Stack<String> ir3Parts = new Stack<>();
   public Boolean stopIdentifierRender = false;
+  public Vector<String> localVars = new Vector<>();
+  public HashMap<String,String> localMap = new HashMap<>();
 
   public StringBuilder str = new StringBuilder();
   public StringBuilder strfull = new StringBuilder();
   public String savedT;
+  public String thisType;
 
   private HashMap<String, Vector<Integer>> temps = new HashMap<>();
 

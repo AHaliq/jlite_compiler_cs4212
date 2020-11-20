@@ -1,5 +1,7 @@
 package ast.concrete;
 
+
+import org.apache.commons.text.StringEscapeUtils;
 public class Render {
 
   public static final RenderLambda linearRender = (n) -> {
@@ -186,7 +188,7 @@ public class Render {
       case 0:
         return String.format("%s + %s", n.get(0).toRender(), n.get(1).toRender());
       case 1:
-        return String.format("\"%s\"", n.get(0).toRender());
+        return String.format("\"%s\"", StringEscapeUtils.escapeJava(n.get(0).toRender()));
       default:
         return Render.linearRender.render(n);
     }

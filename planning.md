@@ -54,6 +54,8 @@ ARM RENDERER
 instruction render
 	string labels
 		- when encounter string literal add to collector and get label and use it
+    - when encounter println for int, generate label for ints
+    - when encounter println for bool, generate label for bools
 
 	string concat
 		- use strlen(L1) for L1 ascii and L2
@@ -85,8 +87,6 @@ instruction render
     - stmfd sp!, {a0-a3}, if to be added to stack
     - mov first 4 arguments to a0-a3
     - make the bl
-	
-	caller teardown
 
 	memory pointer variables
 		- initiated via malloc
@@ -112,4 +112,10 @@ TODO
 start render instructions
   - figure out malloc when encounter string concat or new
   - figure out string literal container when encounter string literals
-  - figure out spilling when encounter read write to spilled variables
+
+===
+CHANGELOG
+
+removed label reset between functions
+fix not rendering implicit this in IR3
+fix CUP was capturing string concat as an AExp and was typechecked as Int, thus string concats always fail

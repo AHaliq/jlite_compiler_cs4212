@@ -1,7 +1,12 @@
 package ast.concrete.ir3;
 
+import java.util.HashMap;
+import java.util.Vector;
+
 import ast.NonTerminal;
+import ast.Terminal;
 import ast.concrete.types.PrimTypes;
+import javasrc.cup.Sym;
 
 public class IR3 {
   public static String DATA_START = "======= CData3 =======\n\n";
@@ -12,22 +17,29 @@ public class IR3 {
     NonTerminal mainNode = (NonTerminal) n.get(0);
     s.str.append(String.format("class %s{\n}\n\n", mainNode.getName()));
     NonTerminal cds = (NonTerminal) n.get(1);
+    Vector<HashMap<String,String>> classFieldsTypes = new Vector<>();
     for(int i = 0; i < cds.length(); i++) {
+      s.localMap = new HashMap<>();
       NonTerminal c = (NonTerminal) cds.get(i);
       s.str.append(String.format("class %s{\n", c.getName()));
       NonTerminal vds = (NonTerminal) c.get(1);
       s = vds.toIR3(s);
       s.str.append("}\n\n");
+      classFieldsTypes.add(s.localMap);
     }
     s.str.append(MTD_START);
     s.flush();
     NonTerminal mainFml = (NonTerminal) (mainNode.getVariant() == 0 ? mainNode.get(1) : null);
     NonTerminal mainBody = (NonTerminal) mainNode.get(mainNode.getVariant() == 0 ? 2 : 1);
+    s.thisType = mainNode.getName();
     s = cmtd(s, PrimTypes.VOID.getStr(), "main", mainNode.getName(), mainFml, mainBody, false);
     for(int i = 0; i < cds.length(); i++) {
       NonTerminal c = (NonTerminal) cds.get(i);
+      s.thisType = c.getName();
+      s.localMap = classFieldsTypes.get(i);
       NonTerminal mdcs = (NonTerminal) c.get(2);
       for(int j = 0; j < mdcs.length(); j++) {
+        s.localVars = new Vector<>();
         NonTerminal m = (NonTerminal) mdcs.get(j);
         NonTerminal fml = (NonTerminal) (m.getVariant() == 0 ? m.get(2) : null);
         NonTerminal mdb = (NonTerminal) m.get(m.getVariant() == 0 ? 3 : 2);
@@ -40,7 +52,11 @@ public class IR3 {
   };
 
   public static IR3Lambda varDecl = (s, v) -> {
-    s.str.append(String.format("  %s %s;\n", v.get(0).toRender(), v.get(1).toRender()));
+    String var = v.get(1).toRender();
+    String tpe = v.get(0).toRender();
+    s.localVars.add(var);
+    s.localMap.put(var, tpe);
+    s.str.append(String.format("  %s %s;\n", tpe, var));
     return s;
   };
 
@@ -83,9 +99,15 @@ public class IR3 {
   };
 
   public static IR3Lambda assg = (s, n) -> {
+    String identifier = n.get(0).toRender();
+    NonTerminal a = new NonTerminal(0, IR3.ident(identifier), 4, (Terminal) n.get(0));
     NonTerminal e = (NonTerminal) n.get(1);
+    if (genNonLocal(identifier, s, a)) {
+      identifier = s.getSavedT();
+      n.tpe = s.thisType;
+    }
     s = e.toIR3(s);
-    s.str.append(String.format("  %s = %s;\n", n.get(0).toRender(), s.getSavedT()));
+    s.str.append(String.format("  %s = %s;\n", identifier, s.getSavedT()));
     return s;
   };
 
@@ -167,8 +189,14 @@ public class IR3 {
   public static IR3Lambda genFuncCall(boolean pre, boolean vac) {
     return (s,n) -> {
       NonTerminal a = (NonTerminal) n.get(0);
-      s.stopIdentifierRender = true;
-      s = a.toIR3(s);
+      if (a.getVariant() == 4) {
+        NonTerminal aux = new NonTerminal(a.getSym(), IR3.constT("this"));
+        aux.tpe = s.thisType;
+        s = aux.toIR3(s);
+      } else {
+        s.stopIdentifierRender = true;
+        s = a.toIR3(s);
+      }
       String tthis = s.getSavedT();
       if(!vac) {
         NonTerminal els = (NonTerminal) n.get(1);
@@ -206,6 +234,35 @@ public class IR3 {
     };
   }
 
+  public static boolean genNonLocal(String str, IR3State s, NonTerminal n) throws Exception {
+    boolean local = false;
+      for(String var : s.localVars) {
+        if (var.equals(str)) {
+          local = true;
+          break;
+        }
+      }
+      if (!local) {
+        NonTerminal thisNode = new NonTerminal(0, IR3.constT("this"), 3);
+        thisNode.tpe = s.thisType;
+        n.tpe = s.localMap.get(n.get(0).toRender());
+        NonTerminal rep = new NonTerminal(0, IR3.atomDot, 0, thisNode, n);
+        rep.tpe = n.tpe;
+        s = rep.toIR3(s);
+        return true;
+      }
+      return false;
+  }
+
+  public static IR3Lambda ident(String str) {
+    return (s,n) -> {
+      if (genNonLocal(str, s, n)) {
+        return s;
+      }
+      return constT(str).render(s,n);
+    };
+  }
+
   public static IR3Lambda relBinOp = (s, n) -> {
     String rt = s.getT(PrimTypes.BOOL.getStr());
     s = IR3.binOp("  " + rt + " = %s " + n.get(1).toRender() + " %s;\n", 0, 2).render(s, n);
@@ -215,7 +272,7 @@ public class IR3 {
 
   public static IR3Lambda arithBinOp(String op) {
     return (s, n) -> {
-      String rt = s.getT(PrimTypes.INT.getStr());
+      String rt = s.getT(n.tpe);
       s = IR3.binOp("  " + rt + " = %s " + op + " %s;\n", 0, 1).render(s, n);
       s.savedT = rt;
       return s;
@@ -269,7 +326,9 @@ public class IR3 {
     if(fmlList != null) {
       for (int i = 0; i < fmlList.length(); i++) {
         NonTerminal fm = (NonTerminal) fmlList.get(i);
-        s.str.append(String.format(",%s %s", fm.get(0).toRender(), fm.get(1).toRender()));
+        String arg = fm.get(1).toRender();
+        s.localVars.add(arg);
+        s.str.append(String.format(",%s %s", fm.get(0).toRender(), arg));
       }
     }
     s.str.append("){\n");
@@ -277,7 +336,6 @@ public class IR3 {
     s = mdBody.toIR3(s);
     s.flush();
     s.str.append("}\n\n");
-    s.resetLabels();
     return s;
   }
 

@@ -52,6 +52,7 @@ public class Util {
         toIndent = false;
       }
       str.append(c);
+      if(escaped) escaped = false;
       switch (c) {
         case ';':
           if (!inString) {

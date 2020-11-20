@@ -10,6 +10,7 @@ import ast.concrete.NameCheck;
 import ast.concrete.NameCheckLambda;
 import ast.concrete.types.TypeCheck;
 import ast.concrete.ir3.IR3;
+import org.apache.commons.text.StringEscapeUtils;
 
 /* Terminals (tokens returned by the scanner). */
 terminal key_class, key_void, key_main, key_int, key_bool, key_string, 
@@ -181,7 +182,7 @@ BGrd ::=
 
 AExp ::=
 	AExp:a tok_plus Term:t
-		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, IR3.arithBinOp("+"), 0, (Node)a, (Node)t); :}
+		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.aExpCheck, IR3.arithBinOp("+"), 0, (Node)a, (Node)t); :}
 | AExp:a tok_minus Term:t
 		{: RESULT = new NonTerminal(Sym.AExp, Render.aExp, TypeCheck.allInt, IR3.arithBinOp("-"), 1, (Node)a, (Node)t); :}
 | Term:t
@@ -210,7 +211,7 @@ SExp ::=
 	SExp:s1 tok_plus SExp:s2
 		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.allString, IR3.arithBinOp("+"), 0, (Node)s1, (Node)s2); :}
 | string_literal:s
-		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.stringCheck, IR3.constT("\"" + s + "\""), 1, new Terminal(Sym.string_literal, s)); :}
+		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.stringCheck, IR3.constT("\"" + StringEscapeUtils.escapeJava((String) s) + "\""), 1, new Terminal(Sym.string_literal, s)); :}
 | Atom:a
 		{: RESULT = new NonTerminal(Sym.SExp, Render.sExp, TypeCheck.passFirstCheck, IR3.renderFirst, 2, (Node)a); :}
 ;
@@ -225,7 +226,7 @@ Atom ::=
 | key_this
 		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.thisCheck, IR3.constT("this"), 3); :}
 | id:i
-		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.idCheck, IR3.constT((String) i), 4, new Terminal(Sym.id, i)); :}
+		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.idCheck, IR3.ident((String) i), 4, new Terminal(Sym.id, i)); :}
 | key_new cname:c tok_lparen tok_rparen
 		{: RESULT = new NonTerminal(Sym.Atom, Render.atom, TypeCheck.constructorCheck, IR3.constT(String.format("new %s()", (String) c)), 5, new Terminal(Sym.cname, c)); :}
 | tok_lparen Exp:e tok_rparen
