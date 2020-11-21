@@ -1,3 +1,5 @@
+.PHONY : build run armcompile clean test cuphelp
+
 DIR:=$(strip $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 JFLEX:=$(DIR)/lib/jflex-full-1.8.2.jar
 CUP:=$(DIR)/lib/java-cup-11b.jar
@@ -15,7 +17,11 @@ build:
 	@echo "3/3\n"
 
 run:
-	@java --class-path $(DIR)/bin:$(CUP):$(COM):$(COML) App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0)
+	@java --class-path $(DIR)/bin:$(CUP):$(COM):$(COML) App $(FILE) $(if $(DEBUG),$(DEBUG),false) $(if $(RENDER),$(RENDER),0) $(if $(OUTPUT),$(OUTPUT),null)
+	$(if $(OUT),make armcompile OUT=$(OUT) IN=$(OUTPUT),)
+
+armcompile:
+	arm-linux-gnueabi-gcc-5 -o $(OUT) $(IN) --static
 
 clean:
 	@rm -rf $(DIR)/bin

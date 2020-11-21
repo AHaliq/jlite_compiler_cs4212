@@ -77,11 +77,8 @@ public class Backend {
     // function name label
     buf.append(ArmRender.stackSetupWSpill(spillCount));
     // stack setup
-    for(int i = 0; i < Math.min(args.size(), RegisterAllocation.SCRATCH_R); i++) {
-      buf.append(ArmRender.storeVar(args.get(i), RegisterAllocation.ARG_REGS[i], selMap));
-    }
-    // store args to free scratch registers
-    
+    ArmRender.renderArgStore(args, buf, selMap);
+    // store args to register
     for (int i = 0; i < body.size(); i++) {
       String inst = body.get(i);
       IR3StmtParse p = IR3Parser.parseStmt(inst);

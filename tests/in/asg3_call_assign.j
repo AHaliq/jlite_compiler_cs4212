@@ -1,14 +1,15 @@
 class Main {
   Void main() {
     F f;
-    Int x;
+    String x;
     f = new F();
     x = f.f();
+    println(x);
+    println("wut\n");
   }
 }
 class F {
-  Int x;
-  Int f() {
-    return 0;
+  String f() {
+    return "it works!\n";
   }
 }

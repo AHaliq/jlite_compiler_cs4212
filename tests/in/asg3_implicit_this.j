@@ -1,10 +1,13 @@
 class Main {
   Void main() {
-    return;
+    C c;
+    c = new C();
+    c.x = "it works\n";
+    c.f();
   }
 }
 class C {
-  Int x;
+  String x;
   Void f() {
     println(x);
   }

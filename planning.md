@@ -109,9 +109,8 @@ global backend program
 ===
 TODO
 
-start render instructions
-  - figure out malloc when encounter string concat or new
-  - figure out string literal container when encounter string literals
+check ARM binary working
+optimization
 
 ===
 CHANGELOG

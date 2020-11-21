@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.Reader;
 
 import ast.NonTerminal;
@@ -21,6 +22,7 @@ public class App {
       Boolean is_debug = args.length > 1 && args[1].equalsIgnoreCase("true");
       Boolean is_indent = args.length > 2 && args[2].equalsIgnoreCase("2");
       Boolean is_compact = args.length > 2 && args[2].equalsIgnoreCase("1");
+      String outPath = args.length > 3 && !args[3].equalsIgnoreCase("null") ? args[3] : null;
       // resolve execution variables
       
       pt = is_debug ? p.debug_parse() : p.parse();
@@ -44,6 +46,15 @@ public class App {
       String arm = Backend.armOfIR3(ir3);
       System.out.println(arm);
       // render arm code
+
+
+      if (outPath != null) {
+        File fo = new File(outPath);
+        FileWriter w = new FileWriter(fo);
+        w.write(arm);
+        w.close();
+      }
+      // output arm s file
     } catch (Exception e) {
       System.out.println("EXCP: " + e.getMessage());
     } finally {

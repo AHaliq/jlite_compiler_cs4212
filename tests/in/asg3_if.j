@@ -1,10 +1,11 @@
 class Main {
   Void main() {
     Bool x;
+    x = true;
     if (x) {
-      println("hey");
+      println("hey\n");
     } else {
-      println("there");
+      println("there\n");
     }
   }
 }

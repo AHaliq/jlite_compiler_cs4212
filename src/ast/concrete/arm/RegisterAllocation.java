@@ -12,8 +12,12 @@ public class RegisterAllocation {
   public static HashMap<String, Integer> noMap(Vector<String> args, Vector<String> varDecls) {
     HashMap<String, Integer> map = new HashMap<>();
     Integer idx = 0;
-    for(int i = 0; i < Math.min(args.size(), SCRATCH_R); i++) {
+    for(int i = 0; i < Math.min(RegisterAllocation.SCRATCH_R, args.size()); i++) {
       map.put(args.get(i), idx++);
+    }
+    for (int i = RegisterAllocation.SCRATCH_R; i < args.size(); i++) {
+      int off = -args.size() + i;
+      map.put(args.get(i), off);
     }
     for(String var : varDecls) {
       map.put(var, idx++);
@@ -31,8 +35,8 @@ public class RegisterAllocation {
   }
 
   public static Integer getSpillOffset(Integer index) {
-    if(index < R) return null;
-    index += 2;
+    if(index < R && index >= 0) return null;
+    if (index >= 0) index += 2;
     index *= ArmRender.WIDTH;
     return -index;
   }

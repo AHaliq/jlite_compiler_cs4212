@@ -1,8 +1,10 @@
 package ast.concrete.arm;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 import ast.concrete.types.PrimTypes;
+
 import org.apache.commons.text.StringEscapeUtils;
 
 public class ArmRender { 
@@ -35,7 +37,7 @@ public class ArmRender {
   public static String storeVar(String arg, String reg, HashMap<String,Integer> selMap) throws Exception {
     Integer i = selMap.get(arg);
     if (i == null) throw new Exception(String.format("unable to find %s when `storeVar`", reg));
-    if (i < RegisterAllocation.R) {
+    if (i < RegisterAllocation.R && i >= 0) {
       return String.format("%smov %s,%s\n", INDENT, RegisterAllocation.VAR_REGS[i], reg);
     }
     return String.format("%sstr %s,[fp,#%d]\n", INDENT, reg, RegisterAllocation.getSpillOffset(i));
@@ -46,6 +48,7 @@ public class ArmRender {
     String reg2;
     String reg3;
     String argType;
+    int offset;
     switch(stmt) {
       case LABEL:
         buf.append("\n");
@@ -72,7 +75,9 @@ public class ArmRender {
           buf.append(String.format("%sldr %s,=%s\n", INDENT, reg, ipl));
           genLoad(reg2, data[0], buf, selMap);
         } else if (argType.equals(PrimTypes.BOOL.getStr())) {
-
+          buf.append(String.format("%scmp %s,#0\n", INDENT, reg));
+          buf.append(String.format("%sldrne %s,=%s\n", INDENT, reg, s.getTruePrintLabel()));
+          buf.append(String.format("%sldreq %s,=%s\n", INDENT, reg, s.getFalsePrintLabel()));
         } else if (argType.equals(PrimTypes.STRING.getStr())) {
           genLoad(reg, data[0], buf, selMap);
         }
@@ -167,7 +172,7 @@ public class ArmRender {
         reg = RegisterAllocation.ARG_REGS[0];
         reg2 = RegisterAllocation.ARG_REGS[1];
         genLoad(reg2, data[1], buf, selMap);
-        int offset = offMap.get(lTypeMap.get(data[1])).get(data[2]);
+        offset = offMap.get(lTypeMap.get(data[1])).get(data[2]);
         buf.append(String.format("%sldr %s,[%s,#%d]\n", INDENT, reg, reg2, offset));
         genStore(reg, data[0], buf, selMap);
         break;
@@ -198,6 +203,14 @@ public class ArmRender {
         buf.append(String.format("%smov %s,#%s\n", INDENT, reg, data[1]));
         genStore(reg, data[0], buf, selMap);
         break;
+      case DOT_ASSIGN:
+        reg = RegisterAllocation.ARG_REGS[0];
+        reg2 = RegisterAllocation.ARG_REGS[1];
+        genLoad(reg, data[0], buf, selMap);
+        genLoad(reg2,data[2], buf, selMap);
+        offset = offMap.get(lTypeMap.get(data[0])).get(data[1]);
+        buf.append(String.format("%sstr %s,[%s,#%d]\n", INDENT, reg2, reg, offset));
+        break;
       case FUNCTION_CALL:
         functionCall(false, data, buf, selMap, resetSpInst);
         break;
@@ -206,14 +219,14 @@ public class ArmRender {
           reg = RegisterAllocation.ARG_REGS[0];
           genLoad(reg, data[0], buf, selMap);
         }
-        buf.append(String.format("%sgoto %s", INDENT, gotoExit(exitIndex)));
+        buf.append(String.format("%sb %s\n", INDENT, exitLabel(exitIndex)));
         break;
       default:
         buf.append(INDENT);
         buf.append("?\n");
         break;
     }
-    buf.append("|"+ new IR3StmtParse(stmt, data).toString() + "\n");
+    //buf.append("|"+ new IR3StmtParse(stmt, data).toString() + "\n");
   }
 
   public static void cmpOp(String op, String[] data, StringBuilder buf, HashMap<String,Integer> selMap) {
@@ -239,34 +252,38 @@ public class ArmRender {
   public static void functionCall(boolean assign, String[] data, StringBuilder buf, HashMap<String,Integer> selMap, String resetSpInst) {
     int io = assign ? 2 : 1;
     StringBuilder str = new StringBuilder();
-    boolean argsInStack = false;
-    for (int i = io + RegisterAllocation.SCRATCH_R; i < data.length; i++) {
-      argsInStack = true;
-      for (int j = 0; j < RegisterAllocation.SCRATCH_R; j++) {
-        if(j == 0) {
-          str.append(INDENT);
-          str.append("stmfd sp!,{");
-        }
-        else str.append(",");
-        str.append(RegisterAllocation.ARG_REGS[j]);
-        int k = i + j;
-        if (k >= data.length || j == RegisterAllocation.SCRATCH_R - 1) {
-          str.append("}\n");
-          break;
-        }
-        genLoad(RegisterAllocation.ARG_REGS[j], data[k], buf, selMap);
+    int spillCount = 0;
+    int totSpill = 0;
+    Vector<String> regs = new Vector<>();
+    for(int i = io + RegisterAllocation.SCRATCH_R; i < data.length; i++) {
+      if (spillCount == 0) {
+        str.append(INDENT);
+        str.append("stmfd sp!,{");
       }
-      buf.append(str.toString());
+      String reg = RegisterAllocation.ARG_REGS[spillCount];
+      regs.add(0, reg);
+      genLoad(reg, data[i], buf, selMap);
+      spillCount++;
+      totSpill++;
+      if(spillCount == RegisterAllocation.SCRATCH_R || i == data.length - 1) {
+        str.append(String.join(",", regs));
+        str.append("}\n");
+        buf.append(str.toString());
+        str = new StringBuilder();
+        spillCount = 0;
+        regs = new Vector<>();
+      }
     }
     // load more than SCRATCH_R args to stack
-    int min = Math.min(RegisterAllocation.SCRATCH_R, data.length - 2);
+    int min = Math.min(RegisterAllocation.SCRATCH_R, data.length - io);
     for (int i = 0; i < min; i++) {
       genLoad(RegisterAllocation.ARG_REGS[i], data[i + io], buf, selMap);
     }
     // load arguments to arg register
-    buf.append(String.format("%sb %s\n", INDENT, data[io-1]));
+    buf.append(String.format("%sbl %s(PLT)\n", INDENT, data[io-1]));
     // make the call
-    if (argsInStack) buf.append(resetSpInst);
+    if (totSpill > 0) buf.append(resetSpInst);
+    System.out.println("------ RESET INSTR : " + resetSpInst);
     // reset SP
     if (assign) genStore(RegisterAllocation.ARG_REGS[0], data[0], buf, selMap);
     // optional save return value
@@ -274,7 +291,7 @@ public class ArmRender {
 
   public static void genLoad(String reg, String var, StringBuilder buf, HashMap<String,Integer> selMap) {
     int i = selMap.get(var);
-    if (i < RegisterAllocation.R) {
+    if (i < RegisterAllocation.R && i >= 0) {
       buf.append(String.format("%smov %s,%s\n", INDENT, reg, RegisterAllocation.VAR_REGS[i]));
       return;
     }
@@ -283,7 +300,7 @@ public class ArmRender {
 
   public static void genStore(String reg, String var, StringBuilder buf, HashMap<String, Integer> selMap) {
     int i = selMap.get(var);
-    if (i < RegisterAllocation.R) {
+    if (i < RegisterAllocation.R && i >= 0) {
       buf.append(String.format("%smov %s,%s\n", INDENT, RegisterAllocation.VAR_REGS[i], reg));
       return;
     }
@@ -305,6 +322,16 @@ public class ArmRender {
   }
 
   public static String gotoExit(int index) {
-    return String.format("\nL%sExit:\n", index);
+    return String.format("\n.L%sExit:\n", index);
+  }
+
+  public static String exitLabel(int index) {
+    return String.format(".L%sExit", index);
+  }
+
+  public static void renderArgStore(Vector<String> args, StringBuilder buf, HashMap<String,Integer> selMap) {
+    for(int i = 0; i < Math.min(args.size(), RegisterAllocation.SCRATCH_R); i++) {
+      genStore(RegisterAllocation.ARG_REGS[i] , args.get(i), buf, selMap);
+    }
   }
 }
