@@ -12,7 +12,7 @@ Note that `make test` is not used to run ARM code due to the nature of my develo
 Example use
 ```sh
 make clean && make
-make run FILE=./tests/in/asg3_merry_xmas.j OUTPUT=./xmas.s OUT=./xmas
+make run FILE=./tests/asg3_tests/asg3_merry_xmas.j OUTPUT=./xmas.s OUT=./xmas
 echo 'run executable xmas on gem5'
 ```
 
