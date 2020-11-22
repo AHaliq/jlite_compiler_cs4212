@@ -202,6 +202,11 @@ public class IR3Parser {
     if (m.matches()) {
       return new IR3StmtParse(IR3Enums.ASSIGN_NEW_OBJ, m.group(1), m.group(2));
     }
+    r = Pattern.compile("\\s+(.+)\\s+=\\s+NULL;$");
+    m = r.matcher(stmt);
+    if (m.matches()) {
+      return new IR3StmtParse(IR3Enums.ASSIGN_STRING, m.group(1), "");
+    }
     r = Pattern.compile("\\s+(.+)\\s+=\\s+\\\"(.+)\\\";$");
     m = r.matcher(stmt);
     if (m.matches()) {
@@ -280,7 +285,7 @@ public class IR3Parser {
       }
       return new IR3StmtParse(IR3Enums.RETURN, reg);
     }
-    throw new Exception("unable to parse IR3 : " + stmt);
+    throw new Exception("unable to parse IR3 : " + stmt + "|");
   } 
 }
 

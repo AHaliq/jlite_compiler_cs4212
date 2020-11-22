@@ -184,7 +184,7 @@ public class ArmRender {
         buf.append(String.format("%smov %s,%s\n", INDENT, reg, reg2));
         genStore(reg, data[0], buf, selMap);
         } catch (Exception e) {
-          buf.append(" -------- HELP");
+          buf.append(" -------- HELP : " + new IR3StmtParse(stmt, data).toString() + " \n");
         }
         break;
       case ASSIGN_INT:

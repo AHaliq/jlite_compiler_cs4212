@@ -13,7 +13,7 @@ Example use
 ```sh
 make clean && make
 make run FILE=./tests/in/asg3_merry_xmas.j OUTPUT=./xmas.s OUT=./xmas
-echo 'run gem5 code on xmas'
+echo 'run executable xmas on gem5'
 ```
 
 # Developer Guide
@@ -22,6 +22,14 @@ echo 'run gem5 code on xmas'
 1. removed label reset between functions
 2. fix not rendering implicit this in IR3
 3. fix CUP was capturing string concat as an AExp and was typechecked as Int, thus string concats always fail
+4. null values originally were given `null` type which is invalid, now parent expression propagates their type e.g. a string assigned to null will pass its type string to the null node.
+
+## Noteworthy features
+1. Implicit this, IR3 now generates code for this when it is omitted in jlite, this is done by storing each local variable when rendering the IR3 for local variable declaration into the state as `s.localVars`. In a higher order function `genNonLocal` it will detect if the identifier is non local and generate the IR3 for this using the type for this in `s.thisType`. This is done in identifier renderer when the non local is a term to be read and when the identifier is a field that is to be written.
+2. String concatenation is done by overloading the arithmetic add IR3 format as the IR3 statement is ambiguous without typing data. Given that the IR3 at the start declares the type for all variables, we can derive the type of the operand without typing data in assignment 2. We pass this to the renderer and in the add statement ARM render it will detect if it is a string or an int. If a string it will use `strlen` to calculate the string length of both operand strings and sum them, then malloc memory the amount of the sum and use `strcat` to create a concatenation of the two strings.
+3. String literals when encountered during rendering generates a label via the state. Thus we can populate all the string data as we render them without having to make a second pass.
+4. Argument spilling is done in the function call ARM render when there are more than arguments including this then there are argument registers. One pain point during development is that the left most register in the `stmfd` instruction is the top of the stack, not the intuitive right most register.
+5. When null is encountered in rendering ARM, it is treated as an empty string, even for the case of object variables. This is ok as we do not print object and thus it could be garbage anyways.
 
 ## Design
 

@@ -103,7 +103,9 @@ public class TypeCheck {
   public static TypeCheckLambda idAssignCheck = (cd, le, n) -> {
     String id = n.get(0).toRender();
     String it = le.getFd(id);
+    n.tpe = it;
     NonTerminal en = (NonTerminal) n.get(1);
+    en.tpe = it;
     RetType et = en.typeCheck(cd, le);
     if(!teq(it,et)) {
       throw new Exception("cannot assign '" + en.toRender() + "' to identifier '" + id + "' of type '" + it + "'");
@@ -151,11 +153,12 @@ public class TypeCheck {
     if (at == null) {
       throw new Exception("undefined field of '" + fd + "' in null value");
     }
-    RetType et = en.typeCheck(cd, le);
     String fdt = cd.get(at.getId()).getFd(fd);
     if(fdt == null) {
       throw new Exception("field '" + fd + "' is not defined for class '" + at + "'");
     }
+    en.tpe = fdt;
+    RetType et = en.typeCheck(cd, le);
     if (!teq(et, fdt)) {
       throw new Exception("cannot assign '" + en.toRender() + "' to field '" + fd + "' of type '" + fdt + "'");
     }
@@ -228,7 +231,10 @@ public class TypeCheck {
   // typecheck lambdas --------------------------------------------------------
 
   public static TypeCheckLambda passFirstCheck = (cd, le, n) -> {
-    RetType r = ((NonTerminal) n.get(0)).typeCheck(cd, le);
+    NonTerminal n0 = ((NonTerminal) n.get(0));
+    if (n.tpe != null) n0.tpe = n.tpe;
+    RetType r = n0.typeCheck(cd, le);
+    if (n.tpe != null) n0.tpe = n.tpe;
     if (r.isId()) {
       n.tpe = r.getId();
     }
@@ -292,7 +298,6 @@ public class TypeCheck {
 
   public static TypeCheckLambda aExpCheck = (cd, le, n) -> {
     RetType t = ((NonTerminal) n.get(0)).typeCheck(cd, le);
-    System.out.println(t.toString());
     String tpe;
     try {
       tpe = t.getId();

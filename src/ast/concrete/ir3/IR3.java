@@ -227,6 +227,7 @@ public class IR3 {
 
   public static IR3Lambda constT(String str) {
     return (s, n) -> {
+      System.out.println(n.toRender() + " : " + n.tpe);
       String rt = s.getT(n.tpe);
       s.str.append(String.format("  %s = %s;\n", rt, str));
       s.savedT = rt;
