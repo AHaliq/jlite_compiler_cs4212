@@ -91,7 +91,8 @@ public class ArmRender {
         int size = objMap.get(data[1]);
         if (size > 0) {
           reg = RegisterAllocation.ARG_REGS[0];
-          buf.append(String.format("%smov %s,#%d\n%sbl malloc(PLT)\n", INDENT, reg, size, INDENT));
+          reg2 = RegisterAllocation.ARG_REGS[1];
+          buf.append(String.format("%smov %s,#1\n%smov %s,#%d\n%sbl calloc(PLT)\n", INDENT, reg, INDENT, reg2, size, INDENT));
           genStore(reg, data[0], buf, selMap);
         }
         break;
@@ -124,7 +125,7 @@ public class ArmRender {
           genLoad(reg, data[1], buf, selMap);
           buf.append(callStrLen);
           buf.append(String.format("%sadd %s,%s,%s\n", INDENT, reg2, reg, reg3));
-          buf.append(String.format("%sadd %s,%s,#1\n%sbl malloc(PLT)\n", INDENT, reg, reg2, INDENT));
+          buf.append(String.format("%sadd %s,%s,#1\n%smov %s,#1\n%sbl malloc(PLT)\n", INDENT, reg, reg2, INDENT, reg2, INDENT));
           genLoad(reg2, data[1], buf, selMap);
           buf.append(callStrCat);
           genLoad(reg2, data[2], buf, selMap);
